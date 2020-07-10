@@ -1,29 +1,6 @@
 module PhotoGroove exposing (main)
-
--- import Html exposing (div, h1, img, text)
--- import Html.Attributes exposing (..)
-
--- view model =
---     div [ class "content" ]
---         [ h1 [] [ text "Photo Groove" ]
---         , div [ id "thumbnails" ]
---             [ img [ src "http://elm-in-action.com/1.jpeg" ] []
---             , img [ src "http://elm-in-action.com/2.jpeg" ] []
---             , img [ src "http://elm-in-action.com/3.jpeg" ] []
---             ]
---         ]
-
--- main =
---     view "no model yet"
         
-import Browser
 import Element exposing (..)
-
-init = 5
-
-       
-update msg model =
-    5
 
 
 view model =
@@ -35,10 +12,8 @@ view model =
                 , image [ height fill ] {src="http://elm-in-action.com/2.jpeg", description="second"}
                 , image [ height fill ] {src="http://elm-in-action.com/3.jpeg", description="third"}  ]
             ]
-        
+    
+
 main =
-    Browser.sandbox
-        { init = init
-        , update = update
-        , view = view
-        }
+    view "no view yet"
+        
