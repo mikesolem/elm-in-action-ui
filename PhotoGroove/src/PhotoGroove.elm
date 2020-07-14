@@ -6,9 +6,9 @@ import Element.Region as Region
 
 view model =
     layout [] <|
-        column [ height fill, width fill ]
+        column [ ]
             [ el [Font.size 32] (text "Photo Groove")
-            , row [ height fill, width fill ]
+            , row [ ]
                 [ image [ height fill ] {src="http://elm-in-action.com/1.jpeg", description="first"}
                 , image [ height fill ] {src="http://elm-in-action.com/2.jpeg", description="second"}
                 , image [ height fill ] {src="http://elm-in-action.com/3.jpeg", description="third"}  ]
