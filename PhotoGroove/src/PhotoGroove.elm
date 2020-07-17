@@ -39,16 +39,20 @@ viewThumbnail selectedUrl thumb =
           }
 
 
+h1 theText =
+    el [ Font.size 32
+       , Font.family [ Font.typeface "Verdana" ]
+       , Font.color <| blue
+       , Font.semiBold
+       ] (text theText)
+
+
 view model =
     layout [ Background.color <| rgb255 44 44 44
            , paddingXY 10 40
            ] <|
         column [ spacing 30 ]
-            [ el [ Font.size 32
-                 , Font.family [ Font.typeface "Verdana" ]
-                 , Font.color <| blue
-                 , Font.semiBold
-                 ] (text "Photo Groove")
+            [ h1 "Photo Groove"
             , Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440) ]
                 (List.map (viewThumbnail model.selectedUrl)  model.photos)
             ]
