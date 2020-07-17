@@ -9,19 +9,30 @@ import List
 
 
 initialModel =
-    [ { url = "1.jpeg" }
-    , { url = "2.jpeg" }
-    , { url = "3.jpeg" }
-    ]
+    { photos =
+          [ { url = "1.jpeg" }
+          , { url = "2.jpeg" }
+          , { url = "3.jpeg" }
+          ]
+    , selectedUrl = "1.jpeg"
+    }
 
 
 urlPrefix =
     "http://elm-in-action.com/"
 
 
-viewThumbnail thumb =
+white =
+    rgb255 0xff 0xff 0xff
+
+
+blue =
+    rgb255 0x60 0xb5 0xcc
+
+
+viewThumbnail selectedUrl thumb =
     image [ Border.width 1
-          , Border.color <| rgb255 0xff 0xff 0xff
+          , Border.color <| (if selectedUrl == thumb.url then blue else white)
           ]
           { src = urlPrefix ++ thumb.url
           , description = ""
@@ -35,11 +46,11 @@ view model =
         column [ spacing 30 ]
             [ el [ Font.size 32
                  , Font.family [ Font.typeface "Verdana" ]
-                 , Font.color <| rgb255 0x60 0xb5 0xcc
+                 , Font.color <| blue
                  , Font.semiBold
                  ] (text "Photo Groove")
             , Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440) ]
-                (List.map viewThumbnail model)
+                (List.map (viewThumbnail model.selectedUrl)  model.photos)
             ]
 
 
