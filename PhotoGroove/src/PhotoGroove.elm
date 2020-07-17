@@ -5,14 +5,26 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Region as Region
+import List
 
 
-thumbnail url =
+initialModel =
+    [ { url = "1.jpeg" }
+    , { url = "2.jpeg" }
+    , { url = "3.jpeg" }
+    ]
+
+
+urlPrefix =
+    "http://elm-in-action.com/"
+
+
+viewThumbnail thumb =
     image [ Border.width 1
           , Border.color <| rgb255 0xff 0xff 0xff
           ]
-          { src=url
-          , description=""
+          { src = urlPrefix ++ thumb.url
+          , description = ""
           }
 
 
@@ -27,12 +39,9 @@ view model =
                  , Font.semiBold
                  ] (text "Photo Groove")
             , Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440) ]
-                [ thumbnail "http://elm-in-action.com/1.jpeg"
-                , thumbnail "http://elm-in-action.com/2.jpeg"
-                , thumbnail "http://elm-in-action.com/3.jpeg"
-                ]
+                (List.map viewThumbnail model)
             ]
 
 
 main =
-    view "no view yet"
+    view initialModel
