@@ -1,10 +1,13 @@
 module PhotoGroove exposing (main)
 
+import Browser
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
+import Element.Events exposing(onClick)
 import Element.Font as Font
 import Element.Region as Region
+
 import List
 
 
@@ -31,8 +34,9 @@ blue =
 
 
 viewThumbnail selectedUrl thumb =
-    image [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)  --? this change should go in tag 2.5
+    image [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)
           , Border.color <| (if selectedUrl == thumb.url then blue else white)
+          , onClick  { description = "ClickedPhoto", data = thumb.url }
           ]
           { src = urlPrefix ++ thumb.url
           , description = ""
@@ -65,5 +69,16 @@ view model =
             ]
 
 
+update msg model =
+    if msg.description == "ClickedPhoto" then
+        { model | selectedUrl = msg.data }
+    else
+        model
+
+
 main =
-    view initialModel
+    Browser.sandbox
+        { init = initialModel
+        , view = view
+        , update = update
+        }
