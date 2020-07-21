@@ -31,7 +31,7 @@ blue =
 
 
 viewThumbnail selectedUrl thumb =
-    image [ Border.width 1
+    image [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)  --? this change should go in tag 2.5
           , Border.color <| (if selectedUrl == thumb.url then blue else white)
           ]
           { src = urlPrefix ++ thumb.url
@@ -53,8 +53,15 @@ view model =
            ] <|
         column [ spacing 30 ]
             [ h1 "Photo Groove"
-            , Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440) ]
-                (List.map (viewThumbnail model.selectedUrl)  model.photos)
+            , row [] [ Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440), alignTop ]
+                           (List.map (viewThumbnail model.selectedUrl)  model.photos)
+                     , image [ spacingXY 10 14
+                             , Border.color white
+                             , Border.width 1 ]
+                           { src = urlPrefix ++ "large/" ++ model.selectedUrl
+                           , description = ""
+                           }
+                     ]
             ]
 
 
