@@ -1,5 +1,6 @@
 module PhotoGroove exposing (main)
 
+import Array exposing (Array)
 import Browser
 import Element exposing (..)
 import Element.Background as Background
@@ -7,10 +8,21 @@ import Element.Border as Border
 import Element.Events exposing(onClick)
 import Element.Font as Font
 import Element.Region as Region
-
+import Html exposing (Html)
 import List
 
 
+type alias Photo =
+    { url : String }
+        
+
+type alias Model =
+    { photos : List Photo
+    , selectedUrl : String
+    }
+        
+
+initialModel : Model
 initialModel =
     { photos =
           [ { url = "1.jpeg" }
@@ -21,6 +33,12 @@ initialModel =
     }
 
 
+photoArray : Array Photo
+photoArray =
+    Array.fromList initialModel.photos
+        
+    
+urlPrefix : String
 urlPrefix =
     "http://elm-in-action.com/"
 
@@ -33,6 +51,11 @@ blue =
     rgb255 0x60 0xb5 0xcc
 
 
+type alias Msg =
+    { description : String, data : String }
+
+        
+viewThumbnail : String -> Photo -> Element Msg
 viewThumbnail selectedUrl thumb =
     image [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)
           , Border.color <| (if selectedUrl == thumb.url then blue else white)
@@ -49,8 +72,9 @@ h1 theText =
        , Font.color <| blue
        , Font.semiBold
        ] (text theText)
+        
 
-
+view : Model -> Html Msg
 view model =
     layout [ Background.color <| rgb255 44 44 44
            , paddingXY 10 40
