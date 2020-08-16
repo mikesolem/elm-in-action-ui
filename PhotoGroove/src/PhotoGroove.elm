@@ -7,6 +7,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing(onClick)
 import Element.Font as Font
+import Element.Input as Input
 import Element.Region as Region
 import Html exposing (Html)
 import List
@@ -14,13 +15,13 @@ import List
 
 type alias Photo =
     { url : String }
-        
+
 
 type alias Model =
     { photos : List Photo
     , selectedUrl : String
     }
-        
+
 
 initialModel : Model
 initialModel =
@@ -36,8 +37,8 @@ initialModel =
 photoArray : Array Photo
 photoArray =
     Array.fromList initialModel.photos
-        
-    
+
+
 urlPrefix : String
 urlPrefix =
     "http://elm-in-action.com/"
@@ -54,7 +55,7 @@ blue =
 type alias Msg =
     { description : String, data : String }
 
-        
+
 viewThumbnail : String -> Photo -> Element Msg
 viewThumbnail selectedUrl thumb =
     image [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)
@@ -72,15 +73,29 @@ h1 theText =
        , Font.color <| blue
        , Font.semiBold
        ] (text theText)
-        
+
 
 view : Model -> Html Msg
 view model =
     layout [ Background.color <| rgb255 44 44 44
-           , paddingXY 10 40
+           , paddingXY 10 45
            ] <|
-        column [ spacing 30 ]
+        column [ spacing 15, centerX ]
             [ h1 "Photo Groove"
+            , Input.button
+                  [ alignRight
+                  , Background.color <| blue
+                  , Font.color <| rgb255 44 44 44
+                  , paddingXY 30 10
+                  , Font.size 22
+                  , Font.family [ Font.typeface "Verdana" ]
+                  , mouseOver [ Background.color <| white ]
+                  , Border.width 1   --
+                  , Element.focused [ Border.color <| white ]
+                  ]
+                  { onPress = Just { description = "ClickedSurpriseMe", data = "" }
+                  , label = text "Surprise Me!"
+                  }
             , row [] [ Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440), alignTop ]
                            (List.map (viewThumbnail model.selectedUrl)  model.photos)
                      , image [ spacingXY 10 14
@@ -94,10 +109,13 @@ view model =
 
 
 update msg model =
-    if msg.description == "ClickedPhoto" then
-        { model | selectedUrl = msg.data }
-    else
-        model
+    case msg.description of
+        "ClickedPhoto" ->
+            { model | selectedUrl = msg.data }
+        "ClickedSurpriseMe" ->
+            { model | selectedUrl = "2.jpeg" }
+        _ ->
+            model
 
 
 main =
