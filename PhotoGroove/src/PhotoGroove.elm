@@ -69,25 +69,25 @@ viewThumbnail selectedUrl thumb =
     image [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)
           , Border.color <| (if selectedUrl == thumb.url then blue else white)
           , onClick  { description = "ClickedPhoto", data = thumb.url }
+          , width (fill |> maximum 100)
           ]
           { src = urlPrefix ++ thumb.url
           , description = ""
           }
 
 
---you are here -> trying to figure out how to use elm-ui radio button,
--- next add it to the view
-
 dummyOnChange x =
     { description = "dummy", data = "none" }
-    --?"zero"
 
---? viewSizeChooser : ThumbnailSize -> Html Msg
+
 viewSizeChooser  =
     Input.radioRow
-        []
-        --?{ label = Input.labelAbove [] (text "size")
-        { label = Input.labelLeft [] (text "Thumbnail Size:    ")
+        [ Font.color <| white ]
+        { label = Input.labelLeft [ Font.color <| white
+                                  , Font.family [ Font.typeface "Verdana" ]
+                                  , Font.semiBold
+                                  ]
+              (text "Thumbnail Size:    ")
         , onChange = dummyOnChange
         , selected = Just Medium
         , options =
@@ -96,6 +96,7 @@ viewSizeChooser  =
             , Input.option Large (text "large")
             ]
         }
+
 
 sizeToString : ThumbnailSize -> String
 sizeToString size =
@@ -120,26 +121,28 @@ view model =
            ] <|
         column [ spacing 15, centerX ]
             [ h1 "Photo Groove"
-            , viewSizeChooser  --? should be at same heigt as Surprise Me button
-            , Input.button
-                  [ alignRight
-                  , Background.color <| blue
-                  , Font.color <| rgb255 44 44 44
-                  , paddingXY 30 10
-                  , Font.size 22
-                  , Font.family [ Font.typeface "Verdana" ]
-                  , mouseOver [ Background.color <| white ]
-                  , Border.width 1   --
-                  , Element.focused [ Border.color <| white ]
-                  ]
-                  { onPress = Just { description = "ClickedSurpriseMe", data = "" }
-                  , label = text "Surprise Me!"
-                  }
-            , row [] [ Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440), alignTop ]
+            , row [width fill] [ viewSizeChooser
+                     , Input.button
+                           [ alignRight
+                           , Background.color <| blue
+                           , Font.color <| rgb255 44 44 44
+                           , paddingXY 30 10
+                           , Font.size 22
+                           , Font.family [ Font.typeface "Verdana" ]
+                           , mouseOver [ Background.color <| white ]
+                           , Border.width 1
+                           , Element.focused [ Border.color <| white ]
+                           ]
+                           { onPress = Just { description = "ClickedSurpriseMe", data = "" }
+                           , label = text "Surprise Me!"
+                           }
+                     ]
+            , row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440), alignTop ]
                            (List.map (viewThumbnail model.selectedUrl)  model.photos)
                      , image [ spacingXY 10 14
                              , Border.color white
-                             , Border.width 1 ]
+                             , Border.width 1
+                             ]
                            { src = urlPrefix ++ "large/" ++ model.selectedUrl
                            , description = ""
                            }
