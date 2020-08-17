@@ -13,6 +13,12 @@ import Html exposing (Html)
 import List
 
 
+type ThumbnailSize
+    = Small
+    | Medium
+    | Large
+
+
 type alias Photo =
     { url : String }
 
@@ -20,6 +26,7 @@ type alias Photo =
 type alias Model =
     { photos : List Photo
     , selectedUrl : String
+    , chosenSize : ThumbnailSize
     }
 
 
@@ -31,6 +38,7 @@ initialModel =
           , { url = "3.jpeg" }
           ]
     , selectedUrl = "1.jpeg"
+    , chosenSize = Medium
     }
 
 
@@ -67,6 +75,36 @@ viewThumbnail selectedUrl thumb =
           }
 
 
+--you are here -> trying to figure out how to use elm-ui radio button,
+-- next add it to the view
+
+dummyOnChange x =
+    { description = "dummy", data = "none" }
+    --?"zero"
+
+--? viewSizeChooser : ThumbnailSize -> Html Msg
+viewSizeChooser  =
+    Input.radioRow
+        []
+        --?{ label = Input.labelAbove [] (text "size")
+        { label = Input.labelLeft [] (text "Thumbnail Size:    ")
+        , onChange = dummyOnChange
+        , selected = Just Medium
+        , options =
+            [ Input.option Small (text "small")
+            , Input.option Medium (text "medium")
+            , Input.option Large (text "large")
+            ]
+        }
+
+sizeToString : ThumbnailSize -> String
+sizeToString size =
+    case size of
+        Small -> "small"
+        Medium -> "medium"
+        Large -> "large"
+
+
 h1 theText =
     el [ Font.size 32
        , Font.family [ Font.typeface "Verdana" ]
@@ -82,6 +120,7 @@ view model =
            ] <|
         column [ spacing 15, centerX ]
             [ h1 "Photo Groove"
+            , viewSizeChooser  --? should be at same heigt as Surprise Me button
             , Input.button
                   [ alignRight
                   , Background.color <| blue
