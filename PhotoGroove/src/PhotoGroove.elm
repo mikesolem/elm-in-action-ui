@@ -60,15 +60,20 @@ blue =
     rgb255 0x60 0xb5 0xcc
 
 
-type alias Msg =
-    { description : String, data : String }
+-- type alias Msg =
+--     { description : String, data : String }
+type Msg
+    = ClickedPhoto String
+    | ClickedSize ThumbnailSize
+    | ClickedSurpriseMe
 
 
 viewThumbnail : String -> Photo -> Element Msg
 viewThumbnail selectedUrl thumb =
     image [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)
           , Border.color <| (if selectedUrl == thumb.url then blue else white)
-          , onClick  { description = "ClickedPhoto", data = thumb.url }
+          --, onClick  { description = "ClickedPhoto", data = thumb.url }
+          , onClick  (ClickedPhoto thumb.url)
           , width (fill |> maximum 100)
           ]
           { src = urlPrefix ++ thumb.url
@@ -77,10 +82,14 @@ viewThumbnail selectedUrl thumb =
 
 
 dummyOnChange x =
-    { description = "dummy", data = "none" }
+    --{ description = "dummy", data = "none" }
+    --ClickedSize Medium
+    ClickedSize x
+
+--onChangeB x =
 
 
-viewSizeChooser  =
+viewSizeChooser  size =
     Input.radioRow
         [ Font.color <| white ]
         { label = Input.labelLeft [ Font.color <| white
@@ -89,7 +98,9 @@ viewSizeChooser  =
                                   ]
               (text "Thumbnail Size:    ")
         , onChange = dummyOnChange
-        , selected = Just Medium
+        --, onChange = ClickedSize size
+        --, selected = Just Medium
+        , selected = Just size
         , options =
             [ Input.option Small (text "small")
             , Input.option Medium (text "medium")
@@ -121,7 +132,7 @@ view model =
            ] <|
         column [ spacing 15, centerX ]
             [ h1 "Photo Groove"
-            , row [width fill] [ viewSizeChooser
+            , row [width fill] [ viewSizeChooser model.chosenSize
                      , Input.button
                            [ alignRight
                            , Background.color <| blue
@@ -133,7 +144,8 @@ view model =
                            , Border.width 1
                            , Element.focused [ Border.color <| white ]
                            ]
-                           { onPress = Just { description = "ClickedSurpriseMe", data = "" }
+                           --{ onPress = Just { description = "ClickedSurpriseMe", data = "" }
+                           { onPress = Just ClickedSurpriseMe
                            , label = text "Surprise Me!"
                            }
                      ]
@@ -150,15 +162,26 @@ view model =
             ]
 
 
+-- update : Msg -> Model -> Model
+-- update msg model =
+--     case msg.description of
+--         "ClickedPhoto" ->
+--             { model | selectedUrl = msg.data }
+--         "ClickedSurpriseMe" ->
+--             { model | selectedUrl = "2.jpeg" }
+--         _ ->
+--             model
 update : Msg -> Model -> Model
 update msg model =
-    case msg.description of
-        "ClickedPhoto" ->
-            { model | selectedUrl = msg.data }
-        "ClickedSurpriseMe" ->
+    case msg of
+        ClickedPhoto url ->
+            { model | selectedUrl = url }
+
+        ClickedSize size ->
+            { model | chosenSize = size }
+
+        ClickedSurpriseMe ->
             { model | selectedUrl = "2.jpeg" }
-        _ ->
-            model
 
 
 main =
