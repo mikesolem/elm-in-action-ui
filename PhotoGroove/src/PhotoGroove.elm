@@ -68,13 +68,18 @@ type Msg
     | ClickedSurpriseMe
 
 
-viewThumbnail : String -> Photo -> Element Msg
-viewThumbnail selectedUrl thumb =
+    -- case size of
+    --     Small -> "small"
+    --     Medium -> "medium"
+
+viewThumbnail : String -> ThumbnailSize -> Photo -> Element Msg
+viewThumbnail selectedUrl chosenSize thumb =
     image [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)
           , Border.color <| (if selectedUrl == thumb.url then blue else white)
           --, onClick  { description = "ClickedPhoto", data = thumb.url }
           , onClick  (ClickedPhoto thumb.url)
-          , width (fill |> maximum 100)
+          --, width (fill |> maximum 100) --you are here, make this size chane when hit radio button
+          , width (fill |> maximum (sizeToInt chosenSize)) --you are here, make this size chane when hit radio button
           ]
           { src = urlPrefix ++ thumb.url
           , description = ""
@@ -109,6 +114,7 @@ viewSizeChooser  size =
         }
 
 
+--? remove if unused        
 sizeToString : ThumbnailSize -> String
 sizeToString size =
     case size of
@@ -116,7 +122,15 @@ sizeToString size =
         Medium -> "medium"
         Large -> "large"
 
+                 
+sizeToInt : ThumbnailSize -> Int
+sizeToInt size =
+    case size of
+        Small -> 50
+        Medium -> 100
+        Large -> 200
 
+             
 h1 theText =
     el [ Font.size 32
        , Font.family [ Font.typeface "Verdana" ]
@@ -150,7 +164,7 @@ view model =
                            }
                      ]
             , row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440), alignTop ]
-                           (List.map (viewThumbnail model.selectedUrl)  model.photos)
+                           (List.map (viewThumbnail model.selectedUrl model.chosenSize)  model.photos)
                      , image [ spacingXY 10 14
                              , Border.color white
                              , Border.width 1
@@ -162,15 +176,17 @@ view model =
             ]
 
 
--- update : Msg -> Model -> Model
--- update msg model =
---     case msg.description of
---         "ClickedPhoto" ->
---             { model | selectedUrl = msg.data }
---         "ClickedSurpriseMe" ->
---             { model | selectedUrl = "2.jpeg" }
---         _ ->
---             model
+
+getPhotoUrl : Int -> String
+getPhotoUrl index =
+    case Array.get index photoArray of
+        Just photo ->
+            photo.url
+
+        Nothing ->
+            ""
+                
+            
 update : Msg -> Model -> Model
 update msg model =
     case msg of
