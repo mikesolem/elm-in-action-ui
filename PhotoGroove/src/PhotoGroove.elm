@@ -34,7 +34,7 @@ initialModel : Model
 initialModel =
     { photos =
           [ { url = "1.jpeg" }
-          -- , { url = "2.jpeg" }
+          , { url = "2.jpeg" }
           -- , { url = "2.jpeg" }
           -- , { url = "2.jpeg" }
           -- , { url = "2.jpeg" }
@@ -170,7 +170,7 @@ view model =
            , paddingXY 10 45
            ] <|
         --column [ spacing 15, centerX, width (fill |> maximum 970) ]
-        column [ spacing 15, centerX, width (px 960) ]
+        column [ spacing 15, centerX, width (px 960), height fill ]
         --column [ spacing 15, centerX ]
             [ h1 "Photo Groove"
             , row [width fill] [ viewSizeChooser model.chosenSize
@@ -194,14 +194,16 @@ view model =
             --, row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, width fill, alignTop ]
             --, row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, alignTop ]
             --, row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 700 |> minimum 400), alignTop ]
-            , row [ spacing 120
-                  , Background.color (rgb 0 1 0)  --? this is not seen just put here for debugging
+            --, row [ spacing 120
+            , row [ spacing 12
+                  , Background.color (rgb 0 1 0.5)  --? put here for debugging
                   , width fill
+                  , height fill  --? no effect
                   ]
                 --[ Element.wrappedRow [height (px 800), width (px 400)]
                 --[ Element.wrappedRow [width fill, height fill]
                 --[ Element.wrappedRow [alignTop, spacingXY 5 14, width fill, height fill]  --  why does row not align to top
-                [ Element.wrappedRow [alignTop, spacingXY 5 14, width fill]  -- why does row not align to top, see next line
+                [ Element.wrappedRow [alignTop, spacingXY 5 14, width fill, Border.width 1]  -- why does row not align to top, see next line
                       (List.map (viewThumbnail2 model.selectedUrl model.chosenSize)  model.photos)  -- why does relative sizeof wrapped row, and big image change even though both have 'width fill'
                       --probably because the whole thing scales, try setting fixed size above
                 --[ Element.wrappedRow [width fill]
@@ -209,9 +211,11 @@ view model =
                 , image [ spacingXY 10 14
                         , alignTop
                         , alignRight
-                        , Border.color white
+                        --?, Border.color white
+                        , Border.color (rgb 1 1 0)
                         , Border.width 1
                         , width fill
+                        , height fill
                         ]
                       { src = urlPrefix ++ "large/" ++ model.selectedUrl
                       , description = ""
@@ -253,4 +257,5 @@ main =
 
 --next: things move around when changing the size of thumbnails
 --      fix that
-          
+-- -is it scaling the large image to the size of the wrapped images
+
