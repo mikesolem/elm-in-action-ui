@@ -34,10 +34,10 @@ initialModel : Model
 initialModel =
     { photos =
           [ { url = "1.jpeg" }
-          , { url = "2.jpeg" }
-          , { url = "2.jpeg" }
-          , { url = "2.jpeg" }
-          , { url = "2.jpeg" }
+          -- , { url = "2.jpeg" }
+          -- , { url = "2.jpeg" }
+          -- , { url = "2.jpeg" }
+          -- , { url = "2.jpeg" }
           , { url = "2.jpeg" }
           , { url = "3.jpeg" }
           ]
@@ -76,6 +76,23 @@ type Msg
     --     Small -> "small"
     --     Medium -> "medium"
 
+
+-- We wrap because??
+viewThumbnail2 : String -> ThumbnailSize -> Photo -> Element Msg
+viewThumbnail2 selectedUrl chosenSize thumb =
+    Element.el [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)
+               , Border.color <| (if selectedUrl == thumb.url then blue else white)
+               , Background.color (rgb 255 1 0)  --? this is not seen just put here for debugging
+               ] 
+               ( image [ onClick  (ClickedPhoto thumb.url)
+                       , width (px (sizeToInt chosenSize))  --you are here, just got this to work, next fix spacing of thumbnails
+                       ]
+                     { src = urlPrefix ++ thumb.url
+                     , description = ""
+                     }
+               )
+
+                     
 viewThumbnail : String -> ThumbnailSize -> Photo -> Element Msg
 viewThumbnail selectedUrl chosenSize thumb =
     image [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)
@@ -84,7 +101,7 @@ viewThumbnail selectedUrl chosenSize thumb =
           , onClick  (ClickedPhoto thumb.url)
           --, width (fill |> maximum 100) --you are here, make this size chane when hit radio button
           --, width (fill |> maximum (sizeToInt chosenSize))
-          , width (px (sizeToInt chosenSize))  --you are here, just got this to work, next fix spacing of thumbnails
+          , width (px (sizeToInt chosenSize))
           ]
           { src = urlPrefix ++ thumb.url
           , description = ""
@@ -152,7 +169,8 @@ view model =
     layout [ Background.color <| rgb255 44 44 44
            , paddingXY 10 45
            ] <|
-        column [ spacing 15, centerX, width (fill |> maximum 970) ]
+        --column [ spacing 15, centerX, width (fill |> maximum 970) ]
+        column [ spacing 15, centerX, width (px 960) ]
         --column [ spacing 15, centerX ]
             [ h1 "Photo Groove"
             , row [width fill] [ viewSizeChooser model.chosenSize
@@ -176,14 +194,20 @@ view model =
             --, row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, width fill, alignTop ]
             --, row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, alignTop ]
             --, row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 700 |> minimum 400), alignTop ]
-            , row [ spacing 120 ]
+            , row [ spacing 120
+                  , Background.color (rgb 0 1 0)  --? this is not seen just put here for debugging
+                  , width fill
+                  ]
                 --[ Element.wrappedRow [height (px 800), width (px 400)]
                 --[ Element.wrappedRow [width fill, height fill]
-                [ Element.wrappedRow [spacingXY 10 14, width fill, height fill]
-                      (List.map (viewThumbnail model.selectedUrl model.chosenSize)  model.photos)
+                --[ Element.wrappedRow [alignTop, spacingXY 5 14, width fill, height fill]  --  why does row not align to top
+                [ Element.wrappedRow [alignTop, spacingXY 5 14, width fill]  -- why does row not align to top, see next line
+                      (List.map (viewThumbnail2 model.selectedUrl model.chosenSize)  model.photos)  -- why does relative sizeof wrapped row, and big image change even though both have 'width fill'
+                      --probably because the whole thing scales, try setting fixed size above
                 --[ Element.wrappedRow [width fill]
                 --      [t, t, t, t, t, t, t, t, t, t]
                 , image [ spacingXY 10 14
+                        , alignTop
                         , alignRight
                         , Border.color white
                         , Border.width 1
