@@ -34,7 +34,7 @@ initialModel : Model
 initialModel =
     { photos =
           [ { url = "1.jpeg" }
-          , { url = "2.jpeg" }
+          --, { url = "2.jpeg" }
           -- , { url = "2.jpeg" }
           -- , { url = "2.jpeg" }
           -- , { url = "2.jpeg" }
@@ -80,7 +80,8 @@ type Msg
 -- We wrap because??
 viewThumbnail2 : String -> ThumbnailSize -> Photo -> Element Msg
 viewThumbnail2 selectedUrl chosenSize thumb =
-    Element.el [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)
+    --Element.el [ Border.width <| (if selectedUrl == thumb.url then 6 else 1)
+    Element.el [ Border.width <| (if selectedUrl == thumb.url then 26 else 1)
                , Border.color <| (if selectedUrl == thumb.url then blue else white)
                , Background.color (rgb 255 1 0)  --? this is not seen just put here for debugging
                ] 
@@ -92,6 +93,23 @@ viewThumbnail2 selectedUrl chosenSize thumb =
                      }
                )
 
+viewThumbnail3 : String -> ThumbnailSize -> Photo -> Element Msg
+viewThumbnail3 selectedUrl chosenSize thumb =
+    Element.el [ padding 26 ] (
+                   Element.el [ Border.width <| (if selectedUrl == thumb.url then 26 else 1)
+                              , Border.color <| (if selectedUrl == thumb.url then blue else white)
+                              , Background.color (rgb 255 1 0)  --? this is not seen just put here for debugging
+                              ] 
+                       ( image [ onClick  (ClickedPhoto thumb.url)
+                               , width (px (sizeToInt chosenSize))  --you are here, just got this to work, next fix spacing of thumbnails
+                               ]
+                             { src = urlPrefix ++ thumb.url
+                             , description = ""
+                             }
+                       )
+                  )
+
+        
                      
 viewThumbnail : String -> ThumbnailSize -> Photo -> Element Msg
 viewThumbnail selectedUrl chosenSize thumb =
@@ -203,8 +221,9 @@ view model =
                 --[ Element.wrappedRow [height (px 800), width (px 400)]
                 --[ Element.wrappedRow [width fill, height fill]
                 --[ Element.wrappedRow [alignTop, spacingXY 5 14, width fill, height fill]  --  why does row not align to top
-                [ Element.wrappedRow [alignTop, spacingXY 5 14, width fill, Border.width 1]  -- why does row not align to top, see next line
-                      (List.map (viewThumbnail2 model.selectedUrl model.chosenSize)  model.photos)  -- why does relative sizeof wrapped row, and big image change even though both have 'width fill'
+                --[ Element.wrappedRow [alignTop, spacingXY 5 14, width fill, Border.width 1]  -- why does row not align to top, see next line
+                [ Element.wrappedRow [alignTop, spacingXY 5 14, width (px 440), Border.width 1]  -- why does row not align to top, see next line
+                      (List.map (viewThumbnail3 model.selectedUrl model.chosenSize)  model.photos)  -- why does relative sizeof wrapped row, and big image change even though both have 'width fill'
                       --probably because the whole thing scales, try setting fixed size above
                 --[ Element.wrappedRow [width fill]
                 --      [t, t, t, t, t, t, t, t, t, t]
@@ -257,5 +276,6 @@ main =
 
 --next: things move around when changing the size of thumbnails
 --      fix that
--- -is it scaling the large image to the size of the wrapped images
+-- -thumbnails move when they are clicked
+--  add second wrapper as is done here?
 
