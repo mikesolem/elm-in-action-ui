@@ -35,6 +35,10 @@ initialModel =
     { photos =
           [ { url = "1.jpeg" }
           , { url = "2.jpeg" }
+          , { url = "2.jpeg" }
+          , { url = "2.jpeg" }
+          , { url = "2.jpeg" }
+          , { url = "2.jpeg" }
           , { url = "3.jpeg" }
           ]
     , selectedUrl = "1.jpeg"
@@ -79,7 +83,8 @@ viewThumbnail selectedUrl chosenSize thumb =
           --, onClick  { description = "ClickedPhoto", data = thumb.url }
           , onClick  (ClickedPhoto thumb.url)
           --, width (fill |> maximum 100) --you are here, make this size chane when hit radio button
-          , width (fill |> maximum (sizeToInt chosenSize)) --you are here, make this size chane when hit radio button
+          --, width (fill |> maximum (sizeToInt chosenSize))
+          , width (px (sizeToInt chosenSize))  --you are here, just got this to work, next fix spacing of thumbnails
           ]
           { src = urlPrefix ++ thumb.url
           , description = ""
@@ -139,12 +144,16 @@ h1 theText =
        ] (text theText)
 
 
+t = Element.text "Hello" 
+
+    
 view : Model -> Html Msg
 view model =
     layout [ Background.color <| rgb255 44 44 44
            , paddingXY 10 45
            ] <|
-        column [ spacing 15, centerX ]
+        column [ spacing 15, centerX, width (fill |> maximum 970) ]
+        --column [ spacing 15, centerX ]
             [ h1 "Photo Groove"
             , row [width fill] [ viewSizeChooser model.chosenSize
                      , Input.button
@@ -163,18 +172,28 @@ view model =
                            , label = text "Surprise Me!"
                            }
                      ]
-            , row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440), alignTop ]
-                           (List.map (viewThumbnail model.selectedUrl model.chosenSize)  model.photos)
-                     , image [ spacingXY 10 14
-                             , Border.color white
-                             , Border.width 1
-                             ]
-                           { src = urlPrefix ++ "large/" ++ model.selectedUrl
-                           , description = ""
-                           }
-                     ]
+            --, row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 440), alignTop ]  -- the 440 causes thumbnail to be smaller -- this is the original line
+            --, row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, width fill, alignTop ]
+            --, row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, alignTop ]
+            --, row [ spacing 120 ] [ Element.wrappedRow [ spacingXY 10 14, width (fill |> maximum 700 |> minimum 400), alignTop ]
+            , row [ spacing 120 ]
+                --[ Element.wrappedRow [height (px 800), width (px 400)]
+                --[ Element.wrappedRow [width fill, height fill]
+                [ Element.wrappedRow [spacingXY 10 14, width fill, height fill]
+                      (List.map (viewThumbnail model.selectedUrl model.chosenSize)  model.photos)
+                --[ Element.wrappedRow [width fill]
+                --      [t, t, t, t, t, t, t, t, t, t]
+                , image [ spacingXY 10 14
+                        , alignRight
+                        , Border.color white
+                        , Border.width 1
+                        , width fill
+                        ]
+                      { src = urlPrefix ++ "large/" ++ model.selectedUrl
+                      , description = ""
+                      }
+                ]
             ]
-
 
 
 getPhotoUrl : Int -> String
@@ -206,3 +225,8 @@ main =
         , view = view
         , update = update
         }
+
+
+--next: things move around when changing the size of thumbnails
+--      fix that
+          
