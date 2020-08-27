@@ -56,6 +56,10 @@ urlPrefix =
     "http://elm-in-action.com/"
 
 
+gray =
+    rgb255 44 44 44
+
+        
 white =
     rgb255 0xff 0xff 0xff
 
@@ -109,6 +113,35 @@ viewThumbnail3 selectedUrl chosenSize thumb =
                        )
                   )
 
+
+viewThumbnail4 : String -> ThumbnailSize -> Photo -> Element Msg
+viewThumbnail4 selectedUrl chosenSize thumb =
+    let
+        width_ = sizeToInt chosenSize
+                 
+        highlight = if selectedUrl == thumb.url then True else False
+                    
+        (outerBorderColor, innerBorderColor) = if highlight then
+                                                   (blue, blue)
+                                               else
+                                                   (gray, white)
+    in
+        Element.el []
+            ( Element.el [ Border.width 5
+                         , Border.color outerBorderColor
+                         --, Border.color gray
+                         ]
+                  ( Element.el [ Border.width 1
+                               , Border.color innerBorderColor
+                               , onClick  (ClickedPhoto thumb.url)
+                               ]
+                        ( image  [ width (px width_)
+                                 , centerX
+                                 , centerY
+                                 ]
+                              --?{ src = "http://elm-in-action.com/1.jpeg", description = "" }  -- image size is 200 x 267
+                              { src = urlPrefix ++ thumb.url, description = "" }  -- image size is 200 x 267
+                        )))
         
                      
 viewThumbnail : String -> ThumbnailSize -> Photo -> Element Msg
@@ -223,7 +256,7 @@ view model =
                 --[ Element.wrappedRow [alignTop, spacingXY 5 14, width fill, height fill]  --  why does row not align to top
                 --[ Element.wrappedRow [alignTop, spacingXY 5 14, width fill, Border.width 1]  -- why does row not align to top, see next line
                 [ Element.wrappedRow [alignTop, spacingXY 5 14, width (px 440), Border.width 1]  -- why does row not align to top, see next line
-                      (List.map (viewThumbnail3 model.selectedUrl model.chosenSize)  model.photos)  -- why does relative sizeof wrapped row, and big image change even though both have 'width fill'
+                      (List.map (viewThumbnail4 model.selectedUrl model.chosenSize)  model.photos)  -- why does relative sizeof wrapped row, and big image change even though both have 'width fill'
                       --probably because the whole thing scales, try setting fixed size above
                 --[ Element.wrappedRow [width fill]
                 --      [t, t, t, t, t, t, t, t, t, t]
