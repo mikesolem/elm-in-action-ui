@@ -11,6 +11,7 @@ import Element.Input as Input
 import Element.Region as Region
 import Html exposing (Html)
 import List
+import Random
 
 
 type ThumbnailSize
@@ -66,6 +67,7 @@ blue =
 
 type Msg
     = ClickedPhoto String
+    | GotSelectedIndex Int
     | ClickedSize ThumbnailSize
     | ClickedSurpriseMe
 
@@ -173,7 +175,7 @@ view model =
             , row [ spacing 12
                   , width fill
                   ]
-                  [ Element.wrappedRow [alignTop, spacingXY 0 14, width (px 440) ]
+                  [ Element.wrappedRow [alignTop, spacingXY 0 3, width (px 440) ]
                         (List.map (viewThumbnail4 model.selectedUrl model.chosenSize)  model.photos)
                   , image [ spacingXY 10 14
                           , alignTop
@@ -198,25 +200,35 @@ getPhotoUrl index =
         Nothing ->
             ""
                 
-            
-update : Msg -> Model -> Model
+
+randomPhotoPicker : Random.Generator Int
+randomPhotoPicker =
+    Random.int 0 (Array.length photoArray - 1)
+                
+                
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         ClickedPhoto url ->
-            { model | selectedUrl = url }
+            ( { model | selectedUrl = url }, Cmd.none )
 
+        GotSelectedIndex index ->
+            ( { model | selectedUrl = getPhotoUrl index }, Cmd.none )
+                
         ClickedSize size ->
-            { model | chosenSize = size }
+            ( { model | chosenSize = size }, Cmd.none )
 
         ClickedSurpriseMe ->
-            { model | selectedUrl = "2.jpeg" }
+            ( model, Random.generate GotSelectedIndex randomPhotoPicker )
 
 
+main : Program () Model Msg
 main =
-    Browser.sandbox
-        { init = initialModel
+    Browser.element
+        { init = \flags -> (initialModel, Cmd.none )
         , view = view
         , update = update
+        , subscriptions = \model -> Sub.none
         }
 
 
