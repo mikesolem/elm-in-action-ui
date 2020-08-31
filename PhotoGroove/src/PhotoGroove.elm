@@ -1,6 +1,6 @@
 module PhotoGroove exposing (main)
 
-import Array exposing (Array)
+--?import Array exposing (Array)
 import Browser
 import Element exposing (..)
 import Element.Background as Background
@@ -24,28 +24,28 @@ type alias Photo =
     { url : String }
 
 
+type Status
+    = Loading
+    | Loaded (List Photo) String
+    | Errored String
+      
+        
 type alias Model =
-    { photos : List Photo
-    , selectedUrl : String
+    { status : Status
     , chosenSize : ThumbnailSize
     }
 
 
 initialModel : Model
 initialModel =
-    { photos =
-          [ { url = "1.jpeg" }
-          , { url = "2.jpeg" }
-          , { url = "3.jpeg" }
-          ]
-    , selectedUrl = "1.jpeg"
+    { status = Loading
     , chosenSize = Medium
     }
 
 
-photoArray : Array Photo
-photoArray =
-    Array.fromList initialModel.photos
+-- photoArray : Array Photo
+-- photoArray =
+--     Array.fromList initialModel.photos
 
 
 urlPrefix : String
@@ -67,15 +67,15 @@ blue =
 
 type Msg
     = ClickedPhoto String
-    | GotSelectedIndex Int
     | ClickedSize ThumbnailSize
     | ClickedSurpriseMe
+    | GotRandomPhoto Photo
 
 
 
 
-viewThumbnail4 : String -> ThumbnailSize -> Photo -> Element Msg
-viewThumbnail4 selectedUrl chosenSize thumb =
+viewThumbnail : String -> ThumbnailSize -> Photo -> Element Msg
+viewThumbnail selectedUrl chosenSize thumb =
     let
         width_ = sizeToInt chosenSize
                  
@@ -145,83 +145,123 @@ h1 theText =
        ] (text theText)
 
 
-t = Element.text "Hello" 
+t = Element.text "Hello"  --? remove
 
-    
+
 view : Model -> Html Msg
 view model =
     layout [ Background.color <| rgb255 44 44 44
            , paddingXY 10 45
            ] <|
-        column [ spacing 15, centerX, width (px 960), height fill ]
-            [ h1 "Photo Groove"
-            , row [width fill] [ viewSizeChooser model.chosenSize
-                     , Input.button
-                           [ alignRight
-                           , Background.color <| blue
-                           , Font.color <| rgb255 44 44 44
-                           , paddingXY 30 10
-                           , Font.size 22
-                           , Font.family [ Font.typeface "Verdana" ]
-                           , mouseOver [ Background.color <| white ]
-                           , Border.width 1
-                           , Element.focused [ Border.color <| white ]
-                           ]
-                           { onPress = Just ClickedSurpriseMe
-                           , label = text "Surprise Me!"
-                           }
-                     ]
+        Element.text "Hello, world!" 
+
+    
+    
+-- view2 : Model -> Html Msg
+-- view2 model =
+--     layout [ Background.color <| rgb255 44 44 44
+--            , paddingXY 10 45
+--            ] <|
+--         column [ spacing 15, centerX, width (px 960), height fill ]
+--             [ h1 "Photo Groove"
+--             , row [width fill] [ viewSizeChooser model.chosenSize
+--                      , Input.button
+--                            [ alignRight
+--                            , Background.color <| blue
+--                            , Font.color <| rgb255 44 44 44
+--                            , paddingXY 30 10
+--                            , Font.size 22
+--                            , Font.family [ Font.typeface "Verdana" ]
+--                            , mouseOver [ Background.color <| white ]
+--                            , Border.width 1
+--                            , Element.focused [ Border.color <| white ]
+--                            ]
+--                            { onPress = Just ClickedSurpriseMe
+--                            , label = text "Surprise Me!"
+--                            }
+--                      ]
                 
-            , row [ spacing 12
-                  , width fill
-                  ]
-                  [ Element.wrappedRow [alignTop, spacingXY 0 3, width (px 440) ]
-                        (List.map (viewThumbnail4 model.selectedUrl model.chosenSize)  model.photos)
-                  , image [ spacingXY 10 14
-                          , alignTop
-                          , alignRight
-                          , Border.color white
-                          , Border.width 1
-                          , width fill
-                          ]
-                        { src = urlPrefix ++ "large/" ++ model.selectedUrl
-                        , description = ""
-                        }
-                  ]
-            ]
+--             , row [ spacing 12
+--                   , width fill
+--                   ]
+--                   [ Element.wrappedRow [alignTop, spacingXY 0 3, width (px 440) ]
+--                         (List.map (viewThumbnail model.selectedUrl model.chosenSize)  model.photos)
+--                   , image [ spacingXY 10 14
+--                           , alignTop
+--                           , alignRight
+--                           , Border.color white
+--                           , Border.width 1
+--                           , width fill
+--                           ]
+--                         { src = urlPrefix ++ "large/" ++ model.selectedUrl
+--                         , description = ""
+--                         }
+--                   ]
+--             ]
 
 
-getPhotoUrl : Int -> String
-getPhotoUrl index =
-    case Array.get index photoArray of
-        Just photo ->
-            photo.url
+-- getPhotoUrl : Int -> String
+-- getPhotoUrl index =
+--     case Array.get index photoArray of
+--         Just photo ->
+--             photo.url
 
-        Nothing ->
-            ""
+--         Nothing ->
+--             ""
                 
 
-randomPhotoPicker : Random.Generator Int
-randomPhotoPicker =
-    Random.int 0 (Array.length photoArray - 1)
+-- randomPhotoPicker : Random.Generator Int
+-- randomPhotoPicker =
+--     Random.int 0 (Array.length photoArray - 1)
                 
                 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         ClickedPhoto url ->
-            ( { model | selectedUrl = url }, Cmd.none )
+            ( { model | status = selectUrl url model.status }, Cmd.none )
 
-        GotSelectedIndex index ->
-            ( { model | selectedUrl = getPhotoUrl index }, Cmd.none )
+        -- GotSelectedIndex index ->
+        --     --?( { model | selectedUrl = getPhotoUrl index }, Cmd.none )
+        --     ( { model | status = selectUrl (getPhotoUrl index) model.status }, Cmd.none )
+        GotRandomPhoto photo ->
+            ( { model | status = selectUrl photo.url model.status }, Cmd.none )
                 
         ClickedSize size ->
             ( { model | chosenSize = size }, Cmd.none )
 
         ClickedSurpriseMe ->
-            ( model, Random.generate GotSelectedIndex randomPhotoPicker )
+            --?( model, Random.generate GotSelectedIndex randomPhotoPicker )
+            case model.status of
+                Loaded (firstPhoto :: otherPhotos) _ ->
+                    ( model
+                    , Random.generate GotRandomPhoto
+                        (Random.uniform firstPhoto otherPhotos)
+                    )
+
+                Loaded [] _ ->
+                    ( model, Cmd.none )
+
+                Loading ->
+                    ( model, Cmd.none )
+
+                Errored errorMessage ->
+                    ( model, Cmd.none )
 
 
+selectUrl : String -> Status -> Status
+selectUrl url status =
+    case status of
+        Loaded photos _ ->
+            Loaded photos url
+
+        Loading ->
+            status
+
+        Errored errorMessage ->
+            status
+                
+                
 main : Program () Model Msg
 main =
     Browser.element
