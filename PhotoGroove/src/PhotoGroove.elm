@@ -28,8 +28,8 @@ type Status
     = Loading
     | Loaded (List Photo) String
     | Errored String
-      
-        
+
+
 type alias Model =
     { status : Status
     , chosenSize : ThumbnailSize
@@ -56,7 +56,7 @@ urlPrefix =
 gray =
     rgb255 44 44 44
 
-        
+
 white =
     rgb255 0xff 0xff 0xff
 
@@ -78,9 +78,9 @@ viewThumbnail : String -> ThumbnailSize -> Photo -> Element Msg
 viewThumbnail selectedUrl chosenSize thumb =
     let
         width_ = sizeToInt chosenSize
-                 
+
         highlight = if selectedUrl == thumb.url then True else False
-                    
+
         (outerBorderColor, innerBorderColor) = if highlight then
                                                    (blue, blue)
                                                else
@@ -100,8 +100,8 @@ viewThumbnail selectedUrl chosenSize thumb =
                                  ]
                               { src = urlPrefix ++ thumb.url, description = "" }
                         )))
-        
-                     
+
+
 viewSizeChooser  size =
     Input.radioRow
         [ Font.color <| white ]
@@ -110,7 +110,7 @@ viewSizeChooser  size =
                                   , Font.semiBold
                                   ]
               (text "Thumbnail Size:    ")
-        , onChange = ClickedSize 
+        , onChange = ClickedSize
         , selected = Just size
         , options =
             [ Input.option Small (text "small")
@@ -120,7 +120,7 @@ viewSizeChooser  size =
         }
 
 
---? remove if unused        
+--? remove if unused
 sizeToString : ThumbnailSize -> String
 sizeToString size =
     case size of
@@ -128,7 +128,7 @@ sizeToString size =
         Medium -> "medium"
         Large -> "large"
 
-                 
+
 sizeToInt : ThumbnailSize -> Int
 sizeToInt size =
     case size of
@@ -136,7 +136,7 @@ sizeToInt size =
         Medium -> 100
         Large -> 200
 
-             
+
 h1 theText =
     el [ Font.size 32
        , Font.family [ Font.typeface "Verdana" ]
@@ -148,15 +148,111 @@ h1 theText =
 t = Element.text "Hello"  --? remove
 
 
+-- view : Model -> Html Msg
+-- view model =
+--     layout [ Background.color <| rgb255 44 44 44
+--            , paddingXY 10 45
+--            ] <|
+--         Element.text "Hello, world!"
+
+-- view : Model -> Html Msg
+-- view model =
+--     layout [ Background.color <| rgb255 44 44 44
+--            , paddingXY 10 45
+--            ] <|
+--     (case model.status of
+--          Loaded photos selectedUrl ->
+--              Element.text "Hello"
+
+--          Loading ->
+--              Element.text "Hello"
+
+--          Errored errorMessage ->
+--              Element.text ("Error: " ++ errorMessage)
+--     )
+
+
+-- view : Model -> Html Msg
+-- view model =
+--     layout [ Background.color <| rgb255 44 44 44
+--            , paddingXY 10 45
+--            ] <|
+--         column [ spacing 15, centerX, width (px 960), height fill ]
+--             [ (case model.status of
+--                    Loaded photos selectedUrl ->
+--                        Element.text "Hello"
+
+--                    Loading ->
+--                        Element.text "Hello"
+
+--                    Errored errorMessage ->
+--                        Element.text ("Error: " ++ errorMessage)
+--                    )
+--             ]
+
+
 view : Model -> Html Msg
 view model =
     layout [ Background.color <| rgb255 44 44 44
            , paddingXY 10 45
            ] <|
-        Element.text "Hello, world!" 
+        column [ spacing 15, centerX, width (px 960), height fill ]
+            (case model.status of
+                 Loaded photos selectedUrl ->
+                     --?[Element.text "Hello"]
+                     viewLoaded photos selectedUrl model.chosenSize
 
-    
-    
+                 Loading ->
+                     [Element.text "Hello"]
+
+                 Errored errorMessage ->
+                     [Element.text ("Error: " ++ errorMessage)]
+            )
+
+
+-- viewLoaded : List Photo -> String -> ThumbnailSize -> List (Element Msg)
+-- viewLoaded photos selectedUrl chosenSize =
+--     [Element.text "Hello"]
+
+viewLoaded : List Photo -> String -> ThumbnailSize -> List (Element Msg)
+viewLoaded photos selectedUrl chosenSize =
+    [ h1 "Photo Groove"
+    , row [width fill] [ viewSizeChooser chosenSize
+                       , Input.button
+                             [ alignRight
+                             , Background.color <| blue
+                             , Font.color <| rgb255 44 44 44
+                             , paddingXY 30 10
+                             , Font.size 22
+                             , Font.family [ Font.typeface "Verdana" ]
+                             , mouseOver [ Background.color <| white ]
+                             , Border.width 1
+                             , Element.focused [ Border.color <| white ]
+                             ]
+                             { onPress = Just ClickedSurpriseMe
+                             , label = text "Surprise Me!"
+                             }
+                       ]
+    , row [ spacing 12
+          , width fill
+          ]
+          [ Element.wrappedRow [alignTop, spacingXY 0 3, width (px 440) ]
+                (List.map (viewThumbnail selectedUrl chosenSize)  photos)
+          , image [ spacingXY 10 14
+                  , alignTop
+                  , alignRight
+                  , Border.color white
+                  , Border.width 1
+                  , width fill
+                  ]
+                { src = urlPrefix ++ "large/" ++ selectedUrl
+                , description = ""
+                }
+          ]
+    ]
+
+
+
 -- view2 : Model -> Html Msg
 -- view2 model =
 --     layout [ Background.color <| rgb255 44 44 44
@@ -180,7 +276,7 @@ view model =
 --                            , label = text "Surprise Me!"
 --                            }
 --                      ]
-                
+
 --             , row [ spacing 12
 --                   , width fill
 --                   ]
@@ -208,13 +304,13 @@ view model =
 
 --         Nothing ->
 --             ""
-                
+
 
 -- randomPhotoPicker : Random.Generator Int
 -- randomPhotoPicker =
 --     Random.int 0 (Array.length photoArray - 1)
-                
-                
+
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
@@ -226,7 +322,7 @@ update msg model =
         --     ( { model | status = selectUrl (getPhotoUrl index) model.status }, Cmd.none )
         GotRandomPhoto photo ->
             ( { model | status = selectUrl photo.url model.status }, Cmd.none )
-                
+
         ClickedSize size ->
             ( { model | chosenSize = size }, Cmd.none )
 
@@ -260,8 +356,8 @@ selectUrl url status =
 
         Errored errorMessage ->
             status
-                
-                
+
+
 main : Program () Model Msg
 main =
     Browser.element
@@ -270,5 +366,3 @@ main =
         , update = update
         , subscriptions = \model -> Sub.none
         }
-
-
