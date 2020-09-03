@@ -1,5 +1,17 @@
 <!doctype html>
 <html>
+  <head>
+    <script>
+      class RangeSlider extends HTMLElement {
+          connectedCallback() {
+              var input = document.createElement("input");
+              this.appendChild(input);
+          }
+      }
+
+      window.customElements.define("range-slider", RangeSlider);
+    </script>
+  </head>
   <body>
     do you see mee
 

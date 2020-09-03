@@ -11,11 +11,13 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Region as Region
 import Html exposing (Html)
-import Html.Attributes
+--import Html.Attributes
+import Html.Attributes as Attr exposing (max, title)
 import List
 import Http
 import Json.Decode exposing (Decoder, int, list, string, succeed)
 import Json.Decode.Pipeline exposing (optional, required)
+import Json.Encode as Encode
 import Random
 
 
@@ -108,7 +110,7 @@ viewThumbnail selectedUrl chosenSize thumb =
                         ( image  [ width (px width_)
                                  , centerX
                                  , centerY
-                                 , Element.htmlAttribute <| Html.Attributes.title thumb.title
+                                 , Element.htmlAttribute <| Attr.title thumb.title
                                  ]
                               { src = urlPrefix ++ thumb.url, description = "" }
                         )))
@@ -175,6 +177,12 @@ view model =
             )
 
 
+--viewFilter  : String -> Int -> Html Msg
+--viewFilter name magnitude =
+
+
+
+
 viewLoaded : List Photo -> String -> ThumbnailSize -> List (Element Msg)
 viewLoaded photos selectedUrl chosenSize =
     [ h1 "Photo Groove"
@@ -193,6 +201,10 @@ viewLoaded photos selectedUrl chosenSize =
                              { onPress = Just ClickedSurpriseMe
                              , label = text "Surprise Me!"
                              }
+                       , rangeSlider [ Attr.max "11"
+                                     , Attr.property "val" (Encode.int 7)
+                                     ]
+                             []
                        ]
     , row [ spacing 12
           , width fill
@@ -282,3 +294,8 @@ main =
         , update = update
         , subscriptions = \_ -> Sub.none
         }
+
+
+rangeSlider : List (Html.Attribute msg) -> List (Html msg) -> Element msg
+rangeSlider attributes children =
+    Element.html <| Html.node "range-slider" attributes children
