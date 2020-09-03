@@ -11,7 +11,6 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Region as Region
 import Html exposing (Html)
---import Html.Attributes
 import Html.Attributes as Attr exposing (max, title)
 import List
 import Http
@@ -165,7 +164,6 @@ view model =
            , paddingXY 10 45
            ] <|
         column [ spacing 15, centerX, width (px 960), height fill ]
-        --?column [ spacing 15, centerX, width (px 1100), height fill ]
             (case model.status of
                  Loaded photos selectedUrl ->
                      viewLoaded photos selectedUrl model.chosenSize
@@ -212,12 +210,6 @@ viewLoaded photos selectedUrl chosenSize =
                              { onPress = Just ClickedSurpriseMe
                              , label = text "Surprise Me!"
                              }
-                       -- , rangeSlider [ Attr.max "11"
-                       --               , Attr.property "val" (Encode.int 7)
-                       --               ]
-                       --       []
-
-                       --, viewFilter "bob" 8
                        ]
     , row [ spacing 12
           , width fill
