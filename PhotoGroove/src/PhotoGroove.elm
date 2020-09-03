@@ -1,5 +1,7 @@
 module PhotoGroove exposing (main)
 
+-- elm-live src/PhotoGroove.elm -- --output=app.js
+
 import Browser
 import Element exposing (..)
 import Element.Background as Background
