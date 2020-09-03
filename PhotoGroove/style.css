@@ -1,4 +1,29 @@
 
+range-slider {
+  width: 120px;
+  margin-top: 5px;
+  margin-right: 15px;
+  display: inline-block;
+}
+
+range-slider .jsr {
+  margin: 0;
+}
+
+/* breaks alignment */
+/* range-slider .jsr_rail-outer { */
+/*   padding: 0; */
+/* } */
+
+/* removes slider bar */
+/* range-slider .jsr_rail { */
+/*   background: none; */
+/* } */
+
 range-slider .jsr_label {
   display: none;
+}
+
+range-slider .jsr_slider:focus::before {
+  background: rgb(96, 181, 204);
 }
