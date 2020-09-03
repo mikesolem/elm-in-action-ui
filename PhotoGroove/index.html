@@ -1,11 +1,21 @@
 <!doctype html>
 <html>
   <head>
+    <link rel="stylesheet" href="http://elm-in-action.com/range-slider.css">
+    <script src="http://elm-in-action.com/range-slider.js"></script>
+
     <script>
       class RangeSlider extends HTMLElement {
           connectedCallback() {
               var input = document.createElement("input");
               this.appendChild(input);
+
+              var jsr = new JSR(input, {
+                  max: this.max,
+                  values: [this.val],
+                  sliders: 1,
+                  grid: false
+              });
           }
       }
 
@@ -13,7 +23,7 @@
     </script>
   </head>
   <body>
-    do you see mee
+    do you see meee
 
     <div id="app"></div>
 

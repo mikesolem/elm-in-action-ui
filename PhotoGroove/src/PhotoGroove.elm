@@ -165,6 +165,7 @@ view model =
            , paddingXY 10 45
            ] <|
         column [ spacing 15, centerX, width (px 960), height fill ]
+        --?column [ spacing 15, centerX, width (px 1100), height fill ]
             (case model.status of
                  Loaded photos selectedUrl ->
                      viewLoaded photos selectedUrl model.chosenSize
@@ -177,16 +178,26 @@ view model =
             )
 
 
---viewFilter  : String -> Int -> Html Msg
---viewFilter name magnitude =
-
-
+viewFilter  : String -> Int -> Element Msg
+viewFilter name magnitude =
+    row [Font.color <| white]
+        [ Element.el [ width (px 80) ] (Element.text name)
+        , rangeSlider [ Attr.max "11"
+                      , Attr.property "val" (Encode.int 7)
+                      ]
+              []
+        , Element.text (String.fromInt magnitude)
+        ]
 
 
 viewLoaded : List Photo -> String -> ThumbnailSize -> List (Element Msg)
 viewLoaded photos selectedUrl chosenSize =
     [ h1 "Photo Groove"
     , row [width fill] [ viewSizeChooser chosenSize
+                       , column [ padding 30 ] [ viewFilter "Hue" 0
+                                               , viewFilter "Ripple" 0
+                                               , viewFilter "Noise" 0
+                                   ]
                        , Input.button
                              [ alignRight
                              , Background.color <| blue
@@ -201,10 +212,12 @@ viewLoaded photos selectedUrl chosenSize =
                              { onPress = Just ClickedSurpriseMe
                              , label = text "Surprise Me!"
                              }
-                       , rangeSlider [ Attr.max "11"
-                                     , Attr.property "val" (Encode.int 7)
-                                     ]
-                             []
+                       -- , rangeSlider [ Attr.max "11"
+                       --               , Attr.property "val" (Encode.int 7)
+                       --               ]
+                       --       []
+
+                       --, viewFilter "bob" 8
                        ]
     , row [ spacing 12
           , width fill
