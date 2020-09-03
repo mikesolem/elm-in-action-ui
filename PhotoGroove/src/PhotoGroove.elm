@@ -9,8 +9,11 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Region as Region
 import Html exposing (Html)
+import Html.Attributes
 import List
 import Http
+import Json.Decode exposing (Decoder, int, list, string, succeed)
+import Json.Decode.Pipeline exposing (optional, required)
 import Random
 
 
@@ -21,7 +24,10 @@ type ThumbnailSize
 
 
 type alias Photo =
-    { url : String }
+    { url : String
+    , size : Int
+    , title : String
+    }
 
 
 type Status
@@ -41,6 +47,14 @@ initialModel =
     { status = Loading
     , chosenSize = Medium
     }
+
+
+photoDecoder : Decoder Photo
+photoDecoder =
+    succeed Photo
+        |> required "url" string
+        |> required "size" int
+        |> optional "title" string "(untitled)"
 
 
 urlPrefix : String
@@ -65,7 +79,7 @@ type Msg
     | ClickedSize ThumbnailSize
     | ClickedSurpriseMe
     | GotRandomPhoto Photo
-    | GotPhotos (Result Http.Error String)
+    | GotPhotos (Result Http.Error (List Photo))
 
 
 
@@ -92,6 +106,7 @@ viewThumbnail selectedUrl chosenSize thumb =
                         ( image  [ width (px width_)
                                  , centerX
                                  , centerY
+                                 , Element.htmlAttribute <| Html.Attributes.title thumb.title
                                  ]
                               { src = urlPrefix ++ thumb.url, description = "" }
                         )))
@@ -151,7 +166,7 @@ view model =
                      viewLoaded photos selectedUrl model.chosenSize
 
                  Loading ->
-                     [Element.text "Hello"]
+                     []
 
                  Errored errorMessage ->
                      [Element.text ("Error: " ++ errorMessage)]
@@ -224,13 +239,11 @@ update msg model =
                 Errored errorMessage ->
                     ( model, Cmd.none )
 
-        GotPhotos (Ok responseStr) ->
-            case String.split "," responseStr of
-                (firstUrl :: _) as urls ->
-                    let
-                        photos = List.map Photo urls
-                    in
-                        ( { model | status = Loaded photos firstUrl }, Cmd.none )
+        GotPhotos (Ok photos) ->
+            case photos of
+                first :: rest ->
+                    ( { model | status = Loaded photos first.url }, Cmd.none )
+
                 [] ->
                     ( { model | status = Errored "0 photos found" }, Cmd.none )
 
@@ -255,8 +268,8 @@ selectUrl url status =
 initialCmd : Cmd Msg
 initialCmd =
     Http.get
-        { url = "http://elm-in-action.com/photos/list"
-        , expect = Http.expectString GotPhotos
+        { url = "http://elm-in-action.com/photos/list.json"
+        , expect = Http.expectJson GotPhotos (list photoDecoder)
         }
 
 main : Program () Model Msg
