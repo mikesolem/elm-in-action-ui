@@ -12,9 +12,10 @@ import Element.Input as Input
 import Element.Region as Region
 import Html exposing (Html)
 import Html.Attributes as Attr exposing (max, title)
+import Html.Events exposing (on)  --? is this doable in elm-ui?
 import List
 import Http
-import Json.Decode exposing (Decoder, int, list, string, succeed)
+import Json.Decode exposing (Decoder, at, int, list, string, succeed)
 import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as Encode
 import Random
@@ -42,6 +43,9 @@ type Status
 type alias Model =
     { status : Status
     , chosenSize : ThumbnailSize
+    , hue : Int
+    , ripple : Int
+    , noise : Int
     }
 
 
@@ -49,6 +53,9 @@ initialModel : Model
 initialModel =
     { status = Loading
     , chosenSize = Medium
+    , hue = 5
+    , ripple = 5
+    , noise = 5
     }
 
 
@@ -83,7 +90,9 @@ type Msg
     | ClickedSurpriseMe
     | GotRandomPhoto Photo
     | GotPhotos (Result Http.Error (List Photo))
-
+    | SlidHue Int
+    | SlidRipple Int
+    | SlidNoise Int
 
 
 viewThumbnail : String -> ThumbnailSize -> Photo -> Element Msg
@@ -166,7 +175,7 @@ view model =
         column [ spacing 15, centerX, width (px 960), height fill ]
             (case model.status of
                  Loaded photos selectedUrl ->
-                     viewLoaded photos selectedUrl model.chosenSize
+                     viewLoaded photos selectedUrl model
 
                  Loading ->
                      []
@@ -176,25 +185,26 @@ view model =
             )
 
 
-viewFilter  : String -> Int -> Element Msg
-viewFilter name magnitude =
+viewFilter  : (Int -> Msg) -> String -> Int -> Element Msg
+viewFilter toMsg name magnitude =
     row [Font.color <| white]
         [ Element.el [ width (px 80) ] (Element.text name)
         , rangeSlider [ Attr.max "11"
-                      , Attr.property "val" (Encode.int 7)
+                      , Attr.property "val" (Encode.int magnitude)
+                      , onSlide toMsg
                       ]
               []
         , Element.text (String.fromInt magnitude)
         ]
 
 
-viewLoaded : List Photo -> String -> ThumbnailSize -> List (Element Msg)
-viewLoaded photos selectedUrl chosenSize =
+viewLoaded : List Photo -> String -> Model -> List (Element Msg)
+viewLoaded photos selectedUrl model =
     [ h1 "Photo Groove"
-    , row [width fill] [ viewSizeChooser chosenSize
-                       , column [ padding 30 ] [ viewFilter "Hue" 0
-                                               , viewFilter "Ripple" 0
-                                               , viewFilter "Noise" 0
+    , row [width fill] [ viewSizeChooser model.chosenSize
+                       , column [ padding 30 ] [ viewFilter SlidHue "Hue" model.hue
+                                               , viewFilter SlidRipple "Ripple" model.ripple
+                                               , viewFilter SlidNoise "Noise" model.noise
                                    ]
                        , Input.button
                              [ alignRight
@@ -215,7 +225,7 @@ viewLoaded photos selectedUrl chosenSize =
           , width fill
           ]
           [ Element.wrappedRow [alignTop, spacingXY 0 3, width (px 440) ]
-                (List.map (viewThumbnail selectedUrl chosenSize)  photos)
+                (List.map (viewThumbnail selectedUrl model.chosenSize)  photos)
           , image [ spacingXY 10 14
                   , alignTop
                   , alignRight
@@ -269,6 +279,15 @@ update msg model =
         GotPhotos (Err _) ->
             ( { model | status = Errored "Server error!" }, Cmd.none )
 
+        SlidHue hue ->
+            ( { model | hue = hue }, Cmd.none )
+
+        SlidRipple ripple ->
+            ( { model | ripple = ripple }, Cmd.none )
+
+        SlidNoise noise ->
+            ( { model | noise = noise }, Cmd.none )
+
 
 
 selectUrl : String -> Status -> Status
@@ -304,3 +323,15 @@ main =
 rangeSlider : List (Html.Attribute msg) -> List (Html msg) -> Element msg
 rangeSlider attributes children =
     Element.html <| Html.node "range-slider" attributes children
+
+
+onSlide : (Int -> msg) -> Html.Attribute msg
+onSlide toMsg =
+    let
+        detailUserSlidTo : Decoder Int
+        detailUserSlidTo = at [ "detail", "userSlidTo" ] int
+
+        msgDecoder : Decoder msg
+        msgDecoder = Json.Decode.map toMsg detailUserSlidTo
+    in
+        on "slide" msgDecoder
