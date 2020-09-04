@@ -11,7 +11,7 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Region as Region
 import Html exposing (Html)
-import Html.Attributes as Attr exposing (max, title)
+import Html.Attributes as Attr exposing (class, max, id, title)
 import Html.Events exposing (on)  --? is this doable in elm-ui?
 import List
 import Http
@@ -32,7 +32,7 @@ port setFilters : FilterOptions -> Cmd msg
 
 type alias FilterOptions =
     { url : String
-    , filters : List { name : String, amount : Int }
+    , filters : List { name : String, amount : Float }
     }
 
 
@@ -235,16 +235,7 @@ viewLoaded photos selectedUrl model =
           ]
           [ Element.wrappedRow [alignTop, spacingXY 0 3, width (px 440) ]
                 (List.map (viewThumbnail selectedUrl model.chosenSize)  photos)
-          , image [ spacingXY 10 14
-                  , alignTop
-                  , alignRight
-                  , Border.color white
-                  , Border.width 1
-                  , width fill
-                  ]
-                { src = urlPrefix ++ "large/" ++ selectedUrl
-                , description = ""
-                }
+          , html <| Html.canvas [ id "main-canvas", class "large" ] []
           ]
     ]
 
@@ -289,13 +280,13 @@ update msg model =
             ( { model | status = Errored "Server error!" }, Cmd.none )
 
         SlidHue hue ->
-            ( { model | hue = hue }, Cmd.none )
+            applyFilters { model | hue = hue }
 
         SlidRipple ripple ->
-            ( { model | ripple = ripple }, Cmd.none )
+            applyFilters { model | ripple = ripple }
 
         SlidNoise noise ->
-            ( { model | noise = noise }, Cmd.none )
+            applyFilters { model | noise = noise }
 
 
 applyFilters : Model -> ( Model, Cmd Msg )
@@ -304,9 +295,9 @@ applyFilters model =
         Loaded photos selectedUrl ->
             let
                 filters =
-                    [ { name = "Hue", amount = model.hue }
-                    , { name = "Ripple", amount = model.ripple }
-                    , { name = "Noise", amount = model.noise }
+                    [ { name = "Hue", amount = toFloat model.hue / 11 }
+                    , { name = "Ripple", amount = toFloat model.ripple / 11 }
+                    , { name = "Noise", amount = toFloat model.noise / 11 }
                     ]
 
                 url = urlPrefix ++ "large/" ++ selectedUrl
