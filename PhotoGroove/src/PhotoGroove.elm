@@ -1,4 +1,4 @@
-module PhotoGroove exposing (main)
+port module PhotoGroove exposing (main)
 
 -- elm-live src/PhotoGroove.elm -- --output=app.js
 
@@ -25,6 +25,15 @@ type ThumbnailSize
     = Small
     | Medium
     | Large
+
+
+port setFilters : FilterOptions -> Cmd msg
+
+
+type alias FilterOptions =
+    { url : String
+    , filters : List { name : String, amount : Int }
+    }
 
 
 type alias Photo =
@@ -244,11 +253,11 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         ClickedPhoto url ->
-            ( { model | status = selectUrl url model.status }, Cmd.none )
+            applyFilters { model | status = selectUrl url model.status }  
 
         GotRandomPhoto photo ->
-            ( { model | status = selectUrl photo.url model.status }, Cmd.none )
-
+              applyFilters { model | status = selectUrl photo.url model.status }  
+                
         ClickedSize size ->
             ( { model | chosenSize = size }, Cmd.none )
 
@@ -289,6 +298,27 @@ update msg model =
             ( { model | noise = noise }, Cmd.none )
 
 
+applyFilters : Model -> ( Model, Cmd Msg )
+applyFilters model =
+    case model.status of
+        Loaded photos selectedUrl ->
+            let
+                filters =
+                    [ { name = "Hue", amount = model.hue }
+                    , { name = "Ripple", amount = model.ripple }
+                    , { name = "Noise", amount = model.noise }
+                    ]
+
+                url = urlPrefix ++ "large/" ++ selectedUrl
+            in
+                (model, setFilters { url = url, filters = filters })
+
+        Loading ->
+            ( model, Cmd.none )
+
+        Errored errorMessage ->
+            ( model, Cmd.none )
+                
 
 selectUrl : String -> Status -> Status
 selectUrl url status =
