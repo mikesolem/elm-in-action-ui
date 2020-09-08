@@ -30,6 +30,9 @@ type ThumbnailSize
 port setFilters : FilterOptions -> Cmd msg
 
 
+port activityChanges : (String -> msg) -> Sub msg                  
+                  
+
 type alias FilterOptions =
     { url : String
     , filters : List { name : String, amount : Float }
@@ -51,6 +54,7 @@ type Status
 
 type alias Model =
     { status : Status
+    , activity : String
     , chosenSize : ThumbnailSize
     , hue : Int
     , ripple : Int
@@ -61,6 +65,7 @@ type alias Model =
 initialModel : Model
 initialModel =
     { status = Loading
+    , activity = ""
     , chosenSize = Medium
     , hue = 5
     , ripple = 5
@@ -98,6 +103,7 @@ type Msg
     | ClickedSize ThumbnailSize
     | ClickedSurpriseMe
     | GotRandomPhoto Photo
+    | GotActivity String
     | GotPhotos (Result Http.Error (List Photo))
     | SlidHue Int
     | SlidRipple Int
@@ -210,6 +216,7 @@ viewFilter toMsg name magnitude =
 viewLoaded : List Photo -> String -> Model -> List (Element Msg)
 viewLoaded photos selectedUrl model =
     [ h1 "Photo Groove"
+    , Element.text model.activity
     , row [width fill] [ viewSizeChooser model.chosenSize
                        , column [ padding 30 ] [ viewFilter SlidHue "Hue" model.hue
                                                , viewFilter SlidRipple "Ripple" model.ripple
@@ -247,8 +254,11 @@ update msg model =
             applyFilters { model | status = selectUrl url model.status }  
 
         GotRandomPhoto photo ->
-              applyFilters { model | status = selectUrl photo.url model.status }  
-                
+            applyFilters { model | status = selectUrl photo.url model.status }  
+
+        GotActivity activity ->
+            ( { model | activity = activity }, Cmd.none )
+                  
         ClickedSize size ->
             ( { model | chosenSize = size }, Cmd.none )
 
@@ -343,9 +353,14 @@ main =
         { init = \_ -> (initialModel, initialCmd )
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
 
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    activityChanges GotActivity
+        
 
 rangeSlider : List (Html.Attribute msg) -> List (Html msg) -> Element msg
 rangeSlider attributes children =
