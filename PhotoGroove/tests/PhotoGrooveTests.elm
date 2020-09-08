@@ -13,7 +13,7 @@ decoderTest =
         \_ ->
              """{"url": "fruits.com", "size": 5}"""
                  |> decodeString PhotoGroove.photoDecoder
-                 |> Expect.equal
-                     (Ok { url = "fruits.com", size = 5, title = "(untitled)"})
+                 |> Result.map .title
+                 |> Expect.equal (Ok "(untitled)")
              
             
