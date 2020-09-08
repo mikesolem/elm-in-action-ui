@@ -215,8 +215,9 @@ viewFilter toMsg name magnitude =
 
 viewLoaded : List Photo -> String -> Model -> List (Element Msg)
 viewLoaded photos selectedUrl model =
-    [ h1 "Photo Groove"
-    , Element.text model.activity
+    [ row [width fill] [ h1 "Photo Groove"
+             , el [alignRight] (Element.text model.activity)
+             ]
     , row [width fill] [ viewSizeChooser model.chosenSize
                        , column [ padding 30 ] [ viewFilter SlidHue "Hue" model.hue
                                                , viewFilter SlidRipple "Ripple" model.ripple
