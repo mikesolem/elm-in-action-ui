@@ -1,4 +1,4 @@
-port module PhotoGroove exposing (main)
+port module PhotoGroove exposing (main, photoDecoder)
 
 -- elm-live src/PhotoGroove.elm -- --output=app.js
 
