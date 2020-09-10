@@ -1,5 +1,6 @@
 port module PhotoGroove exposing (Model, Msg(..), Photo, Status(..),
-                                      initialModel, main, photoDecoder, update, urlPrefix, view)
+                                      initialModel, main, photoDecoder,
+                                      photoFromUrl, update, urlPrefix, view)
 
 -- elm-live src/PhotoGroove.elm -- --output=app.js
 
@@ -387,3 +388,10 @@ onSlide toMsg =
         msgDecoder = Json.Decode.map toMsg detailUserSlidTo
     in
         on "slide" msgDecoder
+
+
+photoFromUrl : String -> Photo
+photoFromUrl url =
+    { url = url, size = 0, title = ""}
+        
+            
