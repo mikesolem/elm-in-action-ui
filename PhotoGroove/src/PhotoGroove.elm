@@ -130,6 +130,7 @@ viewThumbnail selectedUrl chosenSize thumb =
                          ]
                   ( Element.el [ Border.width 1
                                , Border.color innerBorderColor
+                               , htmlAttribute (Attr.id "clickable") -- Used by tests
                                , onClick  (ClickedPhoto thumb.url)
                                ]
                         ( image  [ width (px width_)
