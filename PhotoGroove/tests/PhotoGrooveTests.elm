@@ -47,23 +47,6 @@ testSlider description toMsg amountFromModel =
                 |> Expect.equal amount
     
 
---?86
--- removeMe =
---     test "The <ul> only has <li> children" <|
---         \() ->
---             div []
---                 [ ul [ class "items active" ]
---                       [ li [ class "item"] [ text "first item" ]
---                       , li [ class "item selected"] [ text "second item" ]
---                       , li [ class "item"] [ text "third item" ]
---                       ]
---                 ]
---                 |> Query.fromHtml
---                 |> Query.find [ class "items" ]
---                 |> Query.children [ class "selected" ]
---                 |> Query.count (Expect.equal 1)
-                   
-                   
 noPhotosNoThumbnails : Test
 noPhotosNoThumbnails =
     test "No thumbnails render when there are no photos to render." <|
@@ -100,7 +83,6 @@ thumbnailsWork =
                     |> Expect.all thumbnailChecks
                   
 
-
 urlFuzzer : Fuzzer (List String)
 urlFuzzer =
     Fuzz.intRange 1 5
@@ -111,62 +93,8 @@ urlsFromCount : Int -> List String
 urlsFromCount urlCount =
     List.range 1 urlCount
         |> List.map (\num -> String.fromInt num ++ ".png")
-       
 
--- This is the code from the book           
--- clickThumbnail : Test
--- clickThumbnail =
---     fuzz3 urlFuzzer string urlFuzzer "clicking a thumbnail selects it" <|
---         \urlsBefore urlToSelect urlsAfter ->
---             let
---                 url =
---                     urlToSelect ++ ".jpeg"
-
---                 photos =
---                     (urlsBefore ++ url :: urlsAfter) |> List.map photoFromUrl
-
---                 srcToClick =
---                     urlPrefix ++ url
---             in
---             { initialModel | status = Loaded photos "" }
---                 |> view
---                 |> Query.fromHtml
---                 |> Query.find [ tag "img", attribute (Attr.src srcToClick) ]
---                 |> Event.simulate Event.click
---                 |> Event.expect (ClickedPhoto url)
-
--- clickThumbnail : Test
--- clickThumbnail =
---     fuzz3 urlFuzzer string urlFuzzer "clicking a thumbnail selects it" <|
---         \urlsBefore urlToSelect urlsAfter ->
---             let
---                 url =
---                     urlToSelect ++ ".jpeg"
-
---                 photos =
---                     (urlsBefore ++ url :: urlsAfter) |> List.map photoFromUrl
-
---                 srcToClick =
---                     urlPrefix ++ url
---             in
---             { initialModel | status = Loaded photos "" }
---                 |> view
---                 |> Query.fromHtml
---                 --|> Query.find [ tag "img", attribute (Attr.src srcToClick) ]
---                 --|> Query.find [ tag "div", attribute (Attr.src srcToClick) ]
---                 |> Query.findAll [ tag "div" ]
---                 --   filter so only the div 
---                 |> Event.simulate Event.click
---                 |> Event.expect (ClickedPhoto url)
-
-               
-
--- elm-ui puts code for onClick into javascript, not in the HTML
--- this should find the right image
---   Query.find [ tag "img", attribute (Attr.src srcToClick) ]
--- but we need to click on the element that wraps it
-
-                   
+                 
 clickThumbnail : Test
 clickThumbnail =
     fuzz3 urlFuzzer string urlFuzzer "clicking a thumbnail selects it" <|
@@ -184,9 +112,8 @@ clickThumbnail =
             { initialModel | status = Loaded photos "" }
                 |> view
                 |> Query.fromHtml
-                --|> Query.find [ tag "img", attribute (Attr.src srcToClick) ]
                 |> Query.find [ id "clickable"
                               , containing [ tag "img", attribute (Attr.src srcToClick) ]
-                              ] --? <- you are here
+                              ]
                 |> Event.simulate Event.click
                 |> Event.expect (ClickedPhoto url)
