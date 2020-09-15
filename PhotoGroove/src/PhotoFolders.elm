@@ -1,7 +1,9 @@
 module PhotoFolders exposing(main)
 
 import Browser
+import Dict exposing (Dict)
 import Element exposing (..)
+import Element.Events exposing(onClick)
 import Element.Font as Font
 import Html exposing (Html)
 import Http
@@ -11,12 +13,15 @@ import Json.Decode.Pipeline exposing (required)
 
 type alias Model =
     { selectedPhotoUrl : Maybe String
+    , photos : Dict String Photo
     }
 
 
 initialModel : Model
 initialModel =
-    { selectedPhotoUrl = Nothing }
+    { selectedPhotoUrl = Nothing
+    , photos = Dict.empty
+    }
 
 
 init : () -> ( Model, Cmd Msg )
@@ -31,8 +36,34 @@ init _ =
 
 modelDecoder : Decoder Model
 modelDecoder =
-    Decode.succeed initialModel
-
+    Decode.succeed
+        { selectedPhotoUrl = Just "trevi"
+        , photos =
+            Dict.fromList
+                [ ( "trevi"
+                  , { title = "Trevi"
+                    , relatedUrls = [ "coli", "fresco" ]
+                    , size = 34
+                    , url = "trevi"
+                    }
+                  )
+                , ( "fresco"
+                  , { title = "Fresco"
+                    , relatedUrls = [ "trevi" ]
+                    , size = 46
+                    , url = "fresco"
+                    }
+                  )
+                , ( "coli"
+                  , { title = "Coliseum"
+                    , relatedUrls = [ "trevi", "fresco" ]
+                    , size = 36
+                    , url = "coli"
+                    }
+                  )
+                ]
+        }
+        
 
 type Msg
     = ClickedPhoto String
@@ -56,7 +87,7 @@ update msg model =
 blue =
     rgb255 0x60 0xb5 0xcc
 
-                
+           
 h1 theText =
     el [ Font.size 32
        , Font.family [ Font.typeface "Verdana" ]
@@ -64,13 +95,26 @@ h1 theText =
        , Font.semiBold
        ] (text theText)
 
-                
+
 view : Model -> Html Msg
 view model =
-    Element.layout [] ( h1 "The Grooviest Folders the world has ever seen" )
-        
-        
-    
+    --Element.layout [] ( h1 "The Grooviest Folders the world has ever seen" )
+    let
+        photoByUrl : String -> Maybe Photo
+        photoByUrl url =
+            Dict.get url model.photos
+
+        selectedPhoto : Element Msg
+        selectedPhoto =
+            case Maybe.andThen photoByUrl model.selectedPhotoUrl of
+                Just photo ->
+                    viewSelectedPhoto photo
+
+                Nothing ->
+                    text ""
+    in
+        Element.layout [] (selectedPhoto)
+            
     
 main : Program () Model Msg
 main =
@@ -80,3 +124,39 @@ main =
         , update = update
         , subscriptions = \_ -> Sub.none
         }            
+
+
+type alias Photo =
+    { title : String
+    , size : Int
+    , relatedUrls : List String
+    , url : String
+    }
+
+
+viewSelectedPhoto : Photo -> Element Msg
+viewSelectedPhoto photo =
+    column []
+        [ text photo.title
+        , image [] ({ src = urlPrefix ++ "photos/" ++ photo.url ++ "/full", description = "" } )
+        , text (String.fromInt photo.size ++ "KB")
+        , text "Related"
+        , row [] (List.map viewRelatedPhoto photo.relatedUrls)
+        ]
+    
+
+viewRelatedPhoto : String -> Element Msg
+viewRelatedPhoto url =
+    Element.el [ onClick (ClickedPhoto url)
+               ]
+        ( image [] ({ src = urlPrefix ++ "photos/" ++ url ++ "/thumb", description = "" } ))
+
+           
+urlPrefix : String
+urlPrefix =
+    "http://elm-in-action.com/"
+
+    
+
+
+    
