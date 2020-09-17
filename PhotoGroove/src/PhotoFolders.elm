@@ -13,9 +13,17 @@ import Json.Decode as Decode exposing (Decoder, int, list, string)
 import Json.Decode.Pipeline exposing (required)
 
 
+type Folder =
+    Folder
+        { name : String
+        , photoUrls : List String
+        , subfolders : List Folder
+        }
+
 type alias Model =
     { selectedPhotoUrl : Maybe String
     , photos : Dict String Photo
+    , root : Folder
     }
 
 
@@ -23,6 +31,7 @@ initialModel : Model
 initialModel =
     { selectedPhotoUrl = Nothing
     , photos = Dict.empty
+    , root = Folder { name = "Loading...", photoUrls = [], subfolders = [] }
     }
 
 
@@ -64,6 +73,41 @@ modelDecoder =
                     }
                   )
                 ]
+        , root =
+            Folder
+            { name = "Photos"
+            , photoUrls = []
+            , subfolders =
+                  [ Folder
+                        { name = "2016"
+                        , photoUrls = [ "trevi", "coli" ]
+                        , subfolders =
+                              [ Folder { name = "outdoors", photoUrls = [], subfolders = [] }
+                              , Folder
+                                    { name = "indoors"
+                                    , photoUrls = [ "fresco" ]
+                                    , subfolders = []
+                                    }
+                              ]
+                        }
+                  , Folder
+                        { name = "2017"
+                        , photoUrls = []
+                        , subfolders =
+                              [ Folder
+                                    { name = "outdoors"
+                                    , photoUrls = []
+                                    , subfolders = []
+                                    }
+                              , Folder
+                                    { name = "indoors"
+                                    , photoUrls = []
+                                    , subfolders = []
+                                    }
+                              ]
+                        }
+                  ]
+                }
         }
         
 
@@ -103,6 +147,17 @@ h1 theText =
        ] (text theText)
 
 
+viewFolder : Folder -> Element Msg
+viewFolder (Folder folder) =
+    let
+        subfolders =
+            List.map viewFolder folder.subfolders
+    in
+        column [] [ text folder.name
+                  , column [] subfolders
+                  ]
+        
+
 view : Model -> Html Msg
 view model =
     --Element.layout [] ( h1 "The Grooviest Folders the world has ever seen" )
@@ -119,10 +174,29 @@ view model =
 
                 Nothing ->
                     text ""
+    -- in
+    --     Element.layout [ Background.color <| gray
+    --                    , paddingXY 10 60
+    --                    ] (selectedPhoto)
+    -- in
+    --     Element.layout [ Background.color <| gray
+    --                    , paddingXY 10 60
+    --                    ] ( column [] [ h1 "Folders"
+    --                                  , viewFolder model.root
+    --                                  , selectedPhoto
+    --                                  ]
+    --                      )
     in
         Element.layout [ Background.color <| gray
                        , paddingXY 10 60
-                       ] (selectedPhoto)
+                       ] ( row [ width (px 960) ] [ column [ alignTop, width (px 360)  ]
+                                                        [ h1 "Folders"
+                                                        , viewFolder model.root
+                                                        ]
+                                  , Element.el [width (px 360)] selectedPhoto
+                                  ]
+                         )
+            
             
     
 main : Program () Model Msg
