@@ -2,6 +2,7 @@ module PhotoFolders exposing(main)
 
 import Browser
 import Element.Border as Border
+import Element.Input as Input
 import Dict exposing (Dict)
 import Element exposing (..)
 import Element.Background as Background
@@ -153,14 +154,20 @@ viewFolder (Folder folder) =
         subfolders =
             List.map viewFolder folder.subfolders
     in
-        column [] [ text folder.name
+        column [ paddingXY 20 5 ] [ Input.button [ Background.color <| rgb255 84 84 84
+                                                 , Font.color <| white
+                                                 , padding 7
+                                                 , Font.size 18
+                                                 ]
+                                        { onPress = Nothing
+                                        , label = text folder.name
+                                        }
                   , column [] subfolders
                   ]
         
 
 view : Model -> Html Msg
 view model =
-    --Element.layout [] ( h1 "The Grooviest Folders the world has ever seen" )
     let
         photoByUrl : String -> Maybe Photo
         photoByUrl url =
@@ -174,18 +181,6 @@ view model =
 
                 Nothing ->
                     text ""
-    -- in
-    --     Element.layout [ Background.color <| gray
-    --                    , paddingXY 10 60
-    --                    ] (selectedPhoto)
-    -- in
-    --     Element.layout [ Background.color <| gray
-    --                    , paddingXY 10 60
-    --                    ] ( column [] [ h1 "Folders"
-    --                                  , viewFolder model.root
-    --                                  , selectedPhoto
-    --                                  ]
-    --                      )
     in
         Element.layout [ Background.color <| gray
                        , paddingXY 10 60
