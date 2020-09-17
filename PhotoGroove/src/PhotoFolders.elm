@@ -1,8 +1,10 @@
 module PhotoFolders exposing(main)
 
 import Browser
+import Element.Border as Border
 import Dict exposing (Dict)
 import Element exposing (..)
+import Element.Background as Background
 import Element.Events exposing(onClick)
 import Element.Font as Font
 import Html exposing (Html)
@@ -83,6 +85,11 @@ update msg model =
             ( model, Cmd.none )
       
 
+white =
+    rgb255 0xff 0xff 0xff
+
+gray =
+    rgb255 44 44 44
 
 blue =
     rgb255 0x60 0xb5 0xcc
@@ -113,7 +120,9 @@ view model =
                 Nothing ->
                     text ""
     in
-        Element.layout [] (selectedPhoto)
+        Element.layout [ Background.color <| gray
+                       , paddingXY 10 60
+                       ] (selectedPhoto)
             
     
 main : Program () Model Msg
@@ -136,12 +145,29 @@ type alias Photo =
 
 viewSelectedPhoto : Photo -> Element Msg
 viewSelectedPhoto photo =
-    column []
-        [ text photo.title
-        , image [] ({ src = urlPrefix ++ "photos/" ++ photo.url ++ "/full", description = "" } )
-        , text (String.fromInt photo.size ++ "KB")
-        , text "Related"
-        , row [] (List.map viewRelatedPhoto photo.relatedUrls)
+    column [ spacing 2 ]
+        [ Element.el [ Font.size 24
+                     , Font.color <| white
+                     , Font.family [ Font.typeface "Verdana" ]
+                     , Font.semiBold
+                     ] (text photo.title)
+        , Element.el[ height (px 22)] Element.none
+        , image [ Border.width 1
+                , Border.color <| white
+                ]
+              ({ src = urlPrefix ++ "photos/" ++ photo.url ++ "/full", description = "" } )
+        , Element.el [ centerX
+                     , Font.color <| white
+                     , Font.size 16
+                     , padding 7
+                     ]
+              (text (String.fromInt photo.size ++ "KB"))
+        , Element.el[ height (px 26)] Element.none
+        , Element.el [ Font.color <| blue
+                     , Font.extraBold
+                     ] (text "Related")
+        , Element.el[ height (px 26)] Element.none
+        , row [ spacing 10 ] (List.map viewRelatedPhoto photo.relatedUrls)
         ]
     
 
@@ -149,7 +175,10 @@ viewRelatedPhoto : String -> Element Msg
 viewRelatedPhoto url =
     Element.el [ onClick (ClickedPhoto url)
                ]
-        ( image [] ({ src = urlPrefix ++ "photos/" ++ url ++ "/thumb", description = "" } ))
+        ( image [Border.width 1
+                , Border.color <| white
+                ]
+              ({ src = urlPrefix ++ "photos/" ++ url ++ "/thumb", description = "" } ))
 
            
 urlPrefix : String
