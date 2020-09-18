@@ -165,14 +165,20 @@ viewFolder path (Folder folder) =
         viewSubfolder : Int -> Folder -> Element Msg
         viewSubfolder index subfolder =
             viewFolder (appendIndex index path) subfolder
-        
+
+        arrow =
+            if folder.expanded then
+                "▸  "
+            else
+                "▾  "
+                
         folderLabel = Input.button [ Background.color <| rgb255 84 84 84
                                    , Font.color <| white
                                    , padding 7
                                    , Font.size 18
                                    ]
                       { onPress = Just (ClickedFolder path)
-                      , label = text folder.name
+                      , label = text (arrow ++ folder.name)
                       }
                       
     in
