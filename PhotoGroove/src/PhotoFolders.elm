@@ -159,24 +159,43 @@ h1 theText =
        ] (text theText)
 
 
-viewFolder : Folder -> Element Msg
-viewFolder (Folder folder) =
+viewFolder : FolderPath -> Folder -> Element Msg
+viewFolder path (Folder folder) =
     let
-        subfolders =
-            List.map viewFolder folder.subfolders
-    in
-        column [ paddingXY 20 5 ] [ Input.button [ Background.color <| rgb255 84 84 84
-                                                 , Font.color <| white
-                                                 , padding 7
-                                                 , Font.size 18
-                                                 ]
-                                        { onPress = Nothing
-                                        , label = text folder.name
-                                        }
-                  , column [] subfolders
-                  ]
+        viewSubfolder : Int -> Folder -> Element Msg
+        viewSubfolder index subfolder =
+            viewFolder (appendIndex index path) subfolder
         
+        folderLabel = Input.button [ Background.color <| rgb255 84 84 84
+                                   , Font.color <| white
+                                   , padding 7
+                                   , Font.size 18
+                                   ]
+                      { onPress = Just (ClickedFolder path)
+                      , label = text folder.name
+                      }
+                      
+    in
+        if folder.expanded then
+            let
+                contents = List.append
+                           (List.indexedMap viewSubfolder folder.subfolders)
+                           (List.map viewPhoto folder.photoUrls)
+            in
+                column [ paddingXY 20 5 ] [ folderLabel, column [] contents]
+        else
+            column [ paddingXY 20 5 ] [ folderLabel ]
+                            
+                            
+appendIndex : Int -> FolderPath -> FolderPath
+appendIndex index path =
+    case path of
+        End ->
+            Subfolder index End
+        Subfolder subfolderIndex remainingPath ->
+            Subfolder subfolderIndex (appendIndex index remainingPath)
 
+            
 view : Model -> Html Msg
 view model =
     let
@@ -197,7 +216,7 @@ view model =
                        , paddingXY 10 60
                        ] ( row [ width (px 960) ] [ column [ alignTop, width (px 360)  ]
                                                         [ h1 "Folders"
-                                                        , viewFolder model.root
+                                                        , viewFolder End model.root
                                                         ]
                                   , Element.el [width (px 360)] selectedPhoto
                                   ]
@@ -223,6 +242,18 @@ type alias Photo =
     }
 
 
+viewPhoto : String -> Element Msg
+viewPhoto url =
+    Input.button [ Font.color <| white
+                 , padding 7
+                 , Font.size 18
+                 , paddingXY 20 5
+                 ]
+        { onPress = Just (ClickedPhoto url)
+        , label = text url
+        }
+
+    
 viewSelectedPhoto : Photo -> Element Msg
 viewSelectedPhoto photo =
     column [ spacing 2 ]
