@@ -12,7 +12,7 @@ import Url.Parser as Parser exposing ((</>), Parser, s, string)
 
 
 type alias Model =
-    { page : Page }
+    { page : Page, key : Nav.Key }
 
 
 type Page
@@ -24,7 +24,7 @@ type Page
 
 init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
-    ( { page = urlToPage url }, Cmd.none )
+    ( { page = urlToPage url, key = key }, Cmd.none )
 
 
 urlToPage : Url -> Page
@@ -40,7 +40,8 @@ parser =
         , Parser.map Gallery (s "gallery")
         , Parser.map SelectedPhoto (s "photos" </> Parser.string)
         ]
-                
+
+        
 gray =
     rgb255 44 44 44
 
@@ -137,7 +138,12 @@ isActive { link, page } =
 
         ( NotFound, _ ) ->
             False
-            
+
+
+type Msg
+    = ClickedLink Browser.UrlRequest
+    | ChangedUrl Url
+                
             
 viewFooter : Element msg
 viewFooter =
@@ -148,15 +154,20 @@ viewFooter =
         (text "One is never alone with a rubber duck. -Douglas Adams")
 
 
-type Msg
-    = NothingYet
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        ClickedLink urlRequest ->
+            case urlRequest of
+                Browser.External href ->
+                    ( model, Nav.load href )
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
 
-
+        ChangedUrl url ->
+            ( { model | page = urlToPage url }, Cmd.none )
+                
+                        
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
@@ -166,8 +177,8 @@ main : Program () Model Msg
 main =
     Browser.application
         { init = init
-        , onUrlRequest = \_ -> Debug.todo "handle URL request"
-        , onUrlChange = \_ -> Debug.todo "handle URL change"
+        , onUrlRequest = ClickedLink
+        , onUrlChange = ChangedUrl
         , subscriptions = subscriptions
         , update = update
         , view = view
