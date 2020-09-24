@@ -25,6 +25,11 @@ init = \_ -> ( { page = Gallery }, Cmd.none )
 gray =
     rgb255 44 44 44
 
+
+lightgray =
+    rgb255 187 187 187
+
+        
         
 white =
     rgb255 0xff 0xff 0xff
@@ -52,8 +57,10 @@ view model =
               [ Element.layout [ Background.color <| gray
                                , paddingXY 10 30
                                , Font.color <| white
+                               , Font.size 16
+                               , Font.family [ Font.typeface "Verdana" ]
                                ]
-                    ( Element.column [ ]
+                    ( Element.column [ spacing 15 ]
                           [ viewHeader model.page
                           , content
                           , viewFooter
@@ -75,24 +82,25 @@ viewHeader page =
                 , navLink Gallery { url = "/gallery", caption = "Gallery" }
                 ]
 
-        
-                
         navLink targetPage { url, caption } =
-            Element.link [ Font.underline ] { url = url, label = Element.text caption }
+            let
+                underline = if page == targetPage then [Font.underline] else []
+            in
+                Element.link underline { url = url, label = Element.text caption }
                 
     in
         Element.row [ Region.navigation, spacing 40 ]
             [ logo
             , links
-            --, Element.link [] { url = "http://bla.com", label = Element.text "not a link" }
             ]
 
--- viewFooter : Html msg
--- viewFooter =
---     Element.layout [] ( Element.text "One is never alone with a rubber duc. -Douglas Adams" )  --? use footer
 viewFooter : Element msg
 viewFooter =
-    Element.text "One is never alone with a rubber duck. -Douglas Adams"  --? use footer
+    el [ Region.footer
+       , Font.color <| lightgray
+       , paddingXY 20 50
+       ]
+        (Element.text "One is never alone with a rubber duck. -Douglas Adams")
 
 
 type Msg
@@ -112,13 +120,13 @@ subscriptions model =
 main : Program () Model Msg
 main =
     Browser.document
-        --?{ init = \_ -> ( { page = Folders }, Cmd.none )
-        { init = \_ -> ( { page = Gallery }, Cmd.none )
+        { init = \_ -> ( { page = Folders }, Cmd.none )
         , subscriptions = subscriptions
         , update = update
         , view = view
         }
         
-        
+--? be consistent with Element.thing and thing.  See el
+
       
         
