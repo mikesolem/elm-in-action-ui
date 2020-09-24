@@ -1,4 +1,4 @@
-module PhotoFolders exposing(main)
+module PhotoFolders exposing (Model, Msg, init, upate, view)
 
 -- timeout 1h elm-live src/PhotoFolders.elm -- --output=app.js
 
