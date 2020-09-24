@@ -2,6 +2,8 @@ module Main exposing (main)
 
 import Browser exposing (Document)
 import Element exposing (..)
+import Element.Background as Background
+import Element.Font as Font
 import Element.Region as Region
 --import Html expso
 import Html exposing (Html, a, footer, h1, li, nav, text, ul)  --? remove this
@@ -20,32 +22,26 @@ type Page
 init = \_ -> ( { page = Gallery }, Cmd.none )
 
        
--- view : Model -> Document Msg
--- view model =
---     let
---         content = Element.layout [] ( Element.text "This isn't even my final form!x" )
---     in
---         { title = "Photo Groove, SPA Style"
---         , body =
---               [ viewHeader model.page
---               , Element.layout [] ( Element.text "This isn't even my final form! one" )
---               , Element.layout [] ( Element.text "This isn't even my final form! two" )
---               , content
---               , viewFooter
---               ]
---         }
---
--- view : Model -> Document Msg
--- view model =
---     let
---         content = Element.layout [] ( Element.text "This isn't even my final form!x" )
---     in
---         { title = "Photo Groove, SPA Style"
---         , body =
---               [ Element.layout [] ( Element.text "This isn't even my final form! one" )
---               , Element.layout [] ( Element.text "This isn't even my final form! two" )
---               ]
---         }
+gray =
+    rgb255 44 44 44
+
+        
+white =
+    rgb255 0xff 0xff 0xff
+
+
+blue =
+    rgb255 0x60 0xb5 0xcc
+
+        
+h1 theText =
+    el [ Font.size 26
+       , Font.family [ Font.typeface "Verdana" ]
+       , Font.color <| blue
+       , Font.semiBold
+       ] (Element.text theText)
+
+        
 view : Model -> Document Msg
 view model =
     let
@@ -53,11 +49,12 @@ view model =
     in
         { title = "Photo Groove, SPA Style"
         , body =
-              [ Element.layout []
-                    ( Element.column []
+              [ Element.layout [ Background.color <| gray
+                               , paddingXY 10 30
+                               , Font.color <| white
+                               ]
+                    ( Element.column [ ]
                           [ viewHeader model.page
-                          --, Element.text "This isn't even my final form! one" 
-                          --, Element.text "This isn't even my final form! two"
                           , content
                           , viewFooter
                           ]
@@ -66,61 +63,25 @@ view model =
         }
 
 
--- viewHeader : Page -> Html Msg
--- viewHeader page =
---     let
---         logo =
---             Element.layout [] ( Element.text "Photo Groove" ) --? factor out all this Element.layout stuff
-
---         links =
---             ul []
---                 [ navLink Folders { url = "/", caption = "Folders" }
---                 , navLink Gallery { url = "/gallery", caption = "Gallery" }
---                 ]
-
---         navLink : Page -> { url : String, caption : String } -> Html msg
---         navLink targetPage { url, caption } =
---             li []
---                 [ a [ href url ] [ text caption ] ] 
-                
---     in
---         nav [] [ logo, links ]
--- viewHeader : Page -> Html Msg
--- viewHeader page =
---     let
---         logo =
---             Element.text "Photo Groove"
-
---         links =
---             ul []
---                 [ navLink Folders { url = "/", caption = "Folders" }
---                 , navLink Gallery { url = "/gallery", caption = "Gallery" }
---                 ]
-
---         navLink : Page -> { url : String, caption : String } -> Html msg
---         navLink targetPage { url, caption } =
---             li []
---                 [ a [ href url ] [ text caption ] ] 
-                
---     in
---         nav [] [ logo, links ]
 viewHeader : Page -> Element msg
 viewHeader page =
     let
         logo =
-            Element.text "Photo Groove"
+            h1 "Photo Groove"
 
         links =
-            Element.row []
+            Element.row [ spacing 30 ]
                 [ navLink Folders { url = "/", caption = "Folders" }
                 , navLink Gallery { url = "/gallery", caption = "Gallery" }
                 ]
 
+        
+                
         navLink targetPage { url, caption } =
-            Element.link [] { url = url, label = Element.text caption }
+            Element.link [ Font.underline ] { url = url, label = Element.text caption }
                 
     in
-        Element.row [ Region.navigation ]
+        Element.row [ Region.navigation, spacing 40 ]
             [ logo
             , links
             --, Element.link [] { url = "http://bla.com", label = Element.text "not a link" }
