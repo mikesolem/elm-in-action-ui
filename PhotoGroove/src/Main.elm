@@ -4,7 +4,9 @@ import Browser exposing (Document)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Font as Font
+import Element.Lazy exposing(lazy)
 import Element.Region as Region
+
 
 type alias Model =
     { page : Page }
@@ -58,7 +60,7 @@ view model =
                                , Font.family [ Font.typeface "Verdana" ]
                                ]
                     ( column [ spacing 15 ]
-                          [ viewHeader model.page
+                          [ lazy viewHeader model.page
                           , content
                           , viewFooter
                           ]
