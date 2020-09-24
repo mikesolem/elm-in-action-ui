@@ -8,6 +8,7 @@ import Element.Font as Font
 import Element.Lazy exposing(lazy)
 import Element.Region as Region
 import Url exposing (Url)
+import Url.Parser as Parser exposing ((</>), Parser, s, string)
 
 
 type alias Model =
@@ -15,24 +16,31 @@ type alias Model =
 
 
 type Page
-    = Gallery
+    = SelectedPhoto String
+    | Gallery
     | Folders
     | NotFound
         
 
 init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
-    case url.path of
-        "/gallery" ->
-            ( { page = Gallery }, Cmd.none )
+    ( { page = urlToPage url }, Cmd.none )
 
-        "/" ->
-            ( { page = Folders }, Cmd.none )
 
-        _ ->
-            ( { page = NotFound }, Cmd.none )
+urlToPage : Url -> Page
+urlToPage url =
+    Parser.parse parser url
+        |> Maybe.withDefault NotFound
+        
 
-                    
+parser : Parser (Page -> a) a
+parser =
+    Parser.oneOf
+        [ Parser.map Folders Parser.top
+        , Parser.map Gallery (s "gallery")
+        , Parser.map SelectedPhoto (s "photos" </> Parser.string)
+        ]
+                
 gray =
     rgb255 44 44 44
 
@@ -95,7 +103,7 @@ viewHeader page =
 
         navLink targetPage { url, caption } =
             let
-                underline = if page == targetPage then [Font.underline] else []
+                underline = if isActive { link = targetPage, page = page } then [Font.underline] else []
             in
                 link underline { url = url, label = text caption }
                 
@@ -105,6 +113,31 @@ viewHeader page =
             , links
             ]
 
+
+isActive : { link : Page, page : Page } -> Bool
+isActive { link, page } =
+    case ( link, page ) of
+        ( Gallery, Gallery ) ->
+            True
+
+        ( Gallery, _ ) ->
+            False
+
+        ( Folders, Folders ) ->
+            True
+
+        ( Folders, SelectedPhoto _ ) ->
+            True
+
+        ( Folders, _ ) ->
+            False
+
+        ( SelectedPhoto _, _ ) ->
+            False
+
+        ( NotFound, _ ) ->
+            False
+            
             
 viewFooter : Element msg
 viewFooter =
