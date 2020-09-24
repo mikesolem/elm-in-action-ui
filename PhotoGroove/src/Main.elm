@@ -5,9 +5,6 @@ import Element exposing (..)
 import Element.Background as Background
 import Element.Font as Font
 import Element.Region as Region
---import Html expso
-import Html exposing (Html, a, footer, h1, li, nav, text, ul)  --? remove this
-import Html.Attributes exposing (classList, href)  --? remove
 
 type alias Model =
     { page : Page }
@@ -44,23 +41,23 @@ h1 theText =
        , Font.family [ Font.typeface "Verdana" ]
        , Font.color <| blue
        , Font.semiBold
-       ] (Element.text theText)
+       ] (text theText)
 
         
 view : Model -> Document Msg
 view model =
     let
-        content =  Element.text "This isn't even my final form!"
+        content =  text "This isn't even my final form!"
     in
         { title = "Photo Groove, SPA Style"
         , body =
-              [ Element.layout [ Background.color <| gray
+              [ layout [ Background.color <| gray
                                , paddingXY 10 30
                                , Font.color <| white
                                , Font.size 16
                                , Font.family [ Font.typeface "Verdana" ]
                                ]
-                    ( Element.column [ spacing 15 ]
+                    ( column [ spacing 15 ]
                           [ viewHeader model.page
                           , content
                           , viewFooter
@@ -77,7 +74,7 @@ viewHeader page =
             h1 "Photo Groove"
 
         links =
-            Element.row [ spacing 30 ]
+            row [ spacing 30 ]
                 [ navLink Folders { url = "/", caption = "Folders" }
                 , navLink Gallery { url = "/gallery", caption = "Gallery" }
                 ]
@@ -86,21 +83,22 @@ viewHeader page =
             let
                 underline = if page == targetPage then [Font.underline] else []
             in
-                Element.link underline { url = url, label = Element.text caption }
+                link underline { url = url, label = text caption }
                 
     in
-        Element.row [ Region.navigation, spacing 40 ]
+        row [ Region.navigation, spacing 40 ]
             [ logo
             , links
             ]
 
+            
 viewFooter : Element msg
 viewFooter =
     el [ Region.footer
        , Font.color <| lightgray
        , paddingXY 20 50
        ]
-        (Element.text "One is never alone with a rubber duck. -Douglas Adams")
+        (text "One is never alone with a rubber duck. -Douglas Adams")
 
 
 type Msg
@@ -126,7 +124,7 @@ main =
         , view = view
         }
         
---? be consistent with Element.thing and thing.  See el
+
 
       
         
