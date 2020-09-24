@@ -1,11 +1,13 @@
 module Main exposing (main)
 
 import Browser exposing (Document)
+import Browser.Navigation as Nav
 import Element exposing (..)
 import Element.Background as Background
 import Element.Font as Font
 import Element.Lazy exposing(lazy)
 import Element.Region as Region
+import Url exposing (Url)
 
 
 type alias Model =
@@ -18,9 +20,19 @@ type Page
     | NotFound
         
 
-init = \_ -> ( { page = Gallery }, Cmd.none )
+init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
+    case url.path of
+        "/gallery" ->
+            ( { page = Gallery }, Cmd.none )
 
-       
+        "/" ->
+            ( { page = Folders }, Cmd.none )
+
+        _ ->
+            ( { page = NotFound }, Cmd.none )
+
+                    
 gray =
     rgb255 44 44 44
 
@@ -119,8 +131,10 @@ subscriptions model =
 
 main : Program () Model Msg
 main =
-    Browser.document
-        { init = \_ -> ( { page = Folders }, Cmd.none )
+    Browser.application
+        { init = init
+        , onUrlRequest = \_ -> Debug.todo "handle URL request"
+        , onUrlChange = \_ -> Debug.todo "handle URL change"
         , subscriptions = subscriptions
         , update = update
         , view = view
