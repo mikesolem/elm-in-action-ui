@@ -7,6 +7,8 @@ import Element.Background as Background
 import Element.Font as Font
 import Element.Lazy exposing(lazy)
 import Element.Region as Region
+import PhotoFolders as Folders
+import PhotoGallery as Gallery
 import Url exposing (Url)
 import Url.Parser as Parser exposing ((</>), Parser, s, string)
 
@@ -16,12 +18,17 @@ type alias Model =
 
 
 type Page
-    = SelectedPhoto String
-    | Gallery
-    | Folders
+    = Gallery Gallery.Model
+    | Folders Folders.Model
     | NotFound
         
 
+type Route
+    = Gallery
+    | Folders
+    | SelectedPhoto String
+
+      
 init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     ( { page = urlToPage url, key = key }, Cmd.none )
