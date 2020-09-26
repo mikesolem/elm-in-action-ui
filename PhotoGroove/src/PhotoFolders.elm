@@ -39,9 +39,17 @@ initialModel =
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( initialModel
+-- init : () -> ( Model, Cmd Msg )
+-- init _ =
+--     ( initialModel
+--     , Http.get
+--         { url = "http://elm-in-action.com/folders/list"
+--         , expect = Http.expectJson GotInitialModel modelDecoder
+--         }
+--     )
+init : Maybe String -> ( Model, Cmd Msg )
+init selectedFilename =
+    ( { initialModel | selectedPhotoUrl = selectedFilename }
     , Http.get
         { url = "http://elm-in-action.com/folders/list"
         , expect = Http.expectJson GotInitialModel modelDecoder
@@ -168,17 +176,6 @@ view model =
                          )
             
             
-    
-main : Program () Model Msg
-main =
-    Browser.element
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = \_ -> Sub.none
-        }            
-
-
 type alias Photo =
     { title : String
     , size : Int
