@@ -7,6 +7,7 @@ import Element.Background as Background
 import Element.Font as Font
 import Element.Lazy exposing(lazy)
 import Element.Region as Region
+import Html
 import PhotoFolders as Folders
 import PhotoGallery as Gallery
 import Url exposing (Url)
@@ -20,8 +21,8 @@ type alias Model =
 
 
 type Page
-    = Gallery Gallery.Model
-    | Folders Folders.Model
+    = GalleryPage Gallery.Model
+    | FoldersPage Folders.Model
     | NotFound
         
 
@@ -34,11 +35,31 @@ type Route
 -- init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
 -- init flags url key =
 --     ( { page = urlToPage url, key = key }, Cmd.none )
+
+-- init : Float -> Url -> Nav.Key -> ( Model, Cmd Msg )
+-- init version url key =
+--     ( { page = urlToPage version url, key = key, version = version }
+--     , Cmd.none
+--     )
 init : Float -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init version url key =
-    ( { page = urlToPage version url, key = key, version = version }
-    , Cmd.none
-    )
+    updateUrl url { page = NotFound, key = key, version = version }
+
+
+updateUrl : Url -> Model -> ( Model, Cmd Msg )
+updateUrl url model =
+    case Parser.parse parser url of
+        Just Gallery ->
+            Gallery.init model.version |> toGallery model
+
+        Just Folders ->
+            Folders.init Nothing |> toFolders model
+
+        Just (SelectedPhoto filename) ->
+            Folders.init (Just filename) |> toFolders model
+
+        Nothing ->
+            ( { model | page = NotFound }, Cmd.none )
 
 
 -- urlToPage : Url -> Page
@@ -98,7 +119,23 @@ h1 theText =
 view : Model -> Document Msg
 view model =
     let
-        content =  text "This isn't even my final form!"
+        -- content =  text "This isn't even my final form!"
+        --?you are here: content is returning Html but other things in column return Element        
+        content =
+            case model.page of
+                FoldersPage folders ->
+                    Folders.view folders
+                        --|> Html.map GotFoldersMsg
+                        |> Element.map GotFoldersMsg
+
+                GalleryPage gallery ->
+                    Gallery.view gallery
+                        --|> Html.map GotGalleryMsg
+                        |> Element.map GotGalleryMsg
+
+                NotFound ->
+                    --Html.text "Not Found"
+                    text "Not Found"
     in
         { title = "Photo Groove, SPA Style"
         , body =
@@ -166,6 +203,8 @@ isActive { link, page } =
 type Msg
     = ClickedLink Browser.UrlRequest
     | ChangedUrl Url
+    | GotFoldersMsg Folders.Msg
+    | GotGalleryMsg Gallery.Msg
                 
             
 viewFooter : Element msg
@@ -188,12 +227,51 @@ update msg model =
                     ( model, Nav.pushUrl model.key (Url.toString url) )
 
         ChangedUrl url ->
-            ( { model | page = urlToPage model.version url }, Cmd.none )
-                
+            --( { model | page = urlToPage model.version url }, Cmd.none )
+            updateUrl url model
+
+        GotFoldersMsg foldersMsg ->
+            case model.page of
+                FoldersPage folders ->
+                    toFolders model (Folders.update foldersMsg folders)
+
+                _ ->
+                    ( model, Cmd.none )
+
+        GotGalleryMsg galleryMsg ->
+            case model.page of
+                GalleryPage gallery ->
+                    toGallery model (Gallery.update galleryMsg gallery)
+
+                _ ->
+                    ( model, Cmd.none )
+
                         
+
+toFolders : Model -> ( Folders.Model, Cmd Folders.Msg ) -> ( Model, Cmd Msg )
+toFolders model ( folders, cmd ) =
+    ( { model | page = FoldersPage folders }
+    , Cmd.map GotFoldersMsg cmd
+    )
+                        
+
+toGallery : Model -> ( Gallery.Model, Cmd Gallery.Msg ) -> ( Model, Cmd Msg )
+toGallery model ( folders, cmd ) =
+    ( { model | page = GalleryPage folders }
+    , Cmd.map GotGalleryMsg cmd
+    )
+
+    
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    --Sub.none
+    case model.page of
+        GalleryPage gallery ->
+            Gallery.subscriptions gallery
+                |> Sub.map GotGalleryMsg
+
+        _ ->
+            Sub.none
 
 
 --main : Program () Model Msg
@@ -209,6 +287,9 @@ main =
         }
         
 
-
+-- elm make src/*.elm --output app.js
+-- mike@NY80LT23PB7H2:/mnt/c/projects/git_other/elm-in-action/elm-in-action-ui/PhotoGroove$ timeout 1h http-server-spa .
+-- https://awesomeopensource.com/project/izdi/elm-cheat-sheet
+       
       
         

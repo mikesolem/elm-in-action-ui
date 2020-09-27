@@ -1,4 +1,4 @@
-module PhotoFolders exposing (Model, Msg, init, upate, view)
+module PhotoFolders exposing (Model, Msg, init, update, view)
 
 -- timeout 1h elm-live src/PhotoFolders.elm -- --output=app.js
 
@@ -115,9 +115,11 @@ viewFolder path (Folder folder) =
 
         arrow =
             if folder.expanded then
-                "▸  "
+                -- "▸  "
+                ">"
             else
-                "▾  "
+                --"▾  "
+                "\\/"
                 
         folderLabel = Input.button [ Background.color <| rgb255 84 84 84
                                    , Font.color <| white
@@ -149,7 +151,33 @@ appendIndex index path =
             Subfolder subfolderIndex (appendIndex index remainingPath)
 
             
-view : Model -> Html Msg
+-- view : Model -> Html Msg
+-- view model =
+--     let
+--         photoByUrl : String -> Maybe Photo
+--         photoByUrl url =
+--             Dict.get url model.photos
+
+--         selectedPhoto : Element Msg
+--         selectedPhoto =
+--             case Maybe.andThen photoByUrl model.selectedPhotoUrl of
+--                 Just photo ->
+--                     viewSelectedPhoto photo
+
+--                 Nothing ->
+--                     text ""
+--     in
+--         Element.layout [ Background.color <| gray
+--                        , paddingXY 10 60
+--                        ] ( row [ width (px 960) ] [ column [ alignTop, width (px 360)  ]
+--                                                         [ h1 "Folders"
+--                                                         , viewFolder End model.root
+--                                                         ]
+--                                   , Element.el [width (px 360)] selectedPhoto
+--                                   ]
+--                          )
+
+--?view : Model -> Html Msg
 view model =
     let
         photoByUrl : String -> Maybe Photo
@@ -165,7 +193,7 @@ view model =
                 Nothing ->
                     text ""
     in
-        Element.layout [ Background.color <| gray
+        Element.el [ Background.color <| gray
                        , paddingXY 10 60
                        ] ( row [ width (px 960) ] [ column [ alignTop, width (px 360)  ]
                                                         [ h1 "Folders"
@@ -334,5 +362,7 @@ modelPhotosFromJson : Dict String Photo -> List (Dict String Photo) -> Dict Stri
 modelPhotosFromJson folderPhotos subfolderPhotos =
     List.foldl Dict.union folderPhotos subfolderPhotos
         
-    
-           
+
+-- Dummy to make it compile        
+main =
+  Html.text "Hello!"           

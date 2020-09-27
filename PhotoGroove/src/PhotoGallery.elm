@@ -1,4 +1,4 @@
-port module PhotoGallery exposing (init, Model, Msg, update, view)
+port module PhotoGallery exposing (init, Model, Msg, subscriptions, update, view)
 
 -- elm-live src/PhotoGroove.elm -- --output=app.js
 
@@ -183,9 +183,26 @@ h1 theText =
        ] (text theText)
 
 
-view : Model -> Html Msg
+-- view : Model -> Html Msg
+-- view model =
+--     layout [ Background.color <| rgb255 44 44 44
+--            , paddingXY 10 45
+--            ] <|
+--         column [ spacing 15, centerX, width (px 960), height fill ]
+--             (case model.status of
+--                  Loaded photos selectedUrl ->
+--                      viewLoaded photos selectedUrl model
+
+--                  Loading ->
+--                      []
+
+--                  Errored errorMessage ->
+--                      [Element.text ("Error: " ++ errorMessage)]
+--             )
+
+--?view : Model -> Html Msg
 view model =
-    layout [ Background.color <| rgb255 44 44 44
+    el [ Background.color <| rgb255 44 44 44
            , paddingXY 10 45
            ] <|
         column [ spacing 15, centerX, width (px 960), height fill ]
@@ -349,14 +366,14 @@ initialCmd =
         , expect = Http.expectJson GotPhotos (list photoDecoder)
         }
 
-main : Program Float Model Msg
-main =
-    Browser.element
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        }
+-- main : Program Float Model Msg
+-- main =
+--     Browser.element
+--         { init = init
+--         , view = view
+--         , update = update
+--         , subscriptions = subscriptions
+--         }
 
 
 init : Float -> ( Model, Cmd Msg )
@@ -393,4 +410,8 @@ photoFromUrl : String -> Photo
 photoFromUrl url =
     { url = url, size = 0, title = ""}
         
-            
+
+-- Dummy to make it compile        
+main =
+  Html.text "Hello!"
+      
