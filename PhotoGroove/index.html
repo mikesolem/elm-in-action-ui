@@ -101,10 +101,22 @@
         <script src="http://elm-in-action.com/pasta.js"></script>
         <script src="/app.js"></script>
         <script>
-            var app = Elm.Main.init({
-                flags: Pasta.version,
-                node: document.getElementById("app")
-            });
+          var app = Elm.Main.init({
+              flags: Pasta.version,
+              node: document.getElementById("app")
+          });
+
+          app.ports.setFilters.subscribe(function(options) {
+              requestAnimationFrame(function() {
+                  Pasta.apply(document.getElementById("main-canvas"), options);
+              });
+          });
+
+          Pasta.addActivityListener(function(activity) {
+              //console.log("Got some activity to send to Elm:", activity);
+              app.ports.activityChanges.send(activity);
+          });
+
         </script>
     </body>
 </html>
