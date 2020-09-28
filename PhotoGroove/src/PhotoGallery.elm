@@ -12,7 +12,7 @@ import Element.Input as Input
 import Element.Region as Region
 import Html exposing (Html)
 import Html.Attributes as Attr exposing (class, max, id, title)
-import Html.Events exposing (on)  --? is this doable in elm-ui?
+import Html.Events exposing (on)
 import List
 import Http
 import Json.Decode exposing (Decoder, at, int, list, string, succeed)
@@ -183,24 +183,7 @@ h1 theText =
        ] (text theText)
 
 
--- view : Model -> Html Msg
--- view model =
---     layout [ Background.color <| rgb255 44 44 44
---            , paddingXY 10 45
---            ] <|
---         column [ spacing 15, centerX, width (px 960), height fill ]
---             (case model.status of
---                  Loaded photos selectedUrl ->
---                      viewLoaded photos selectedUrl model
-
---                  Loading ->
---                      []
-
---                  Errored errorMessage ->
---                      [Element.text ("Error: " ++ errorMessage)]
---             )
-
---?view : Model -> Html Msg
+view : Model -> Element Msg
 view model =
     el [ Background.color <| rgb255 44 44 44
            , paddingXY 10 45
@@ -365,15 +348,6 @@ initialCmd =
         { url = "http://elm-in-action.com/photos/list.json"
         , expect = Http.expectJson GotPhotos (list photoDecoder)
         }
-
--- main : Program Float Model Msg
--- main =
---     Browser.element
---         { init = init
---         , view = view
---         , update = update
---         , subscriptions = subscriptions
---         }
 
 
 init : Float -> ( Model, Cmd Msg )

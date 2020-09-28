@@ -39,14 +39,6 @@ initialModel =
     }
 
 
--- init : () -> ( Model, Cmd Msg )
--- init _ =
---     ( initialModel
---     , Http.get
---         { url = "http://elm-in-action.com/folders/list"
---         , expect = Http.expectJson GotInitialModel modelDecoder
---         }
---     )
 init : Maybe String -> ( Model, Cmd Msg )
 init selectedFilename =
     ( { initialModel | selectedPhotoUrl = selectedFilename }
@@ -115,11 +107,9 @@ viewFolder path (Folder folder) =
 
         arrow =
             if folder.expanded then
-                -- "▸  "
-                ">"
+                "\u{25B8}" -- This is an arrow (triangle) pointing to the right
             else
-                --"▾  "
-                "\\/"
+                "\u{25BE}" -- This is an arrow (triangle) pointing down
                 
         folderLabel = Input.button [ Background.color <| rgb255 84 84 84
                                    , Font.color <| white
@@ -151,33 +141,8 @@ appendIndex index path =
             Subfolder subfolderIndex (appendIndex index remainingPath)
 
             
--- view : Model -> Html Msg
--- view model =
---     let
---         photoByUrl : String -> Maybe Photo
---         photoByUrl url =
---             Dict.get url model.photos
 
---         selectedPhoto : Element Msg
---         selectedPhoto =
---             case Maybe.andThen photoByUrl model.selectedPhotoUrl of
---                 Just photo ->
---                     viewSelectedPhoto photo
-
---                 Nothing ->
---                     text ""
---     in
---         Element.layout [ Background.color <| gray
---                        , paddingXY 10 60
---                        ] ( row [ width (px 960) ] [ column [ alignTop, width (px 360)  ]
---                                                         [ h1 "Folders"
---                                                         , viewFolder End model.root
---                                                         ]
---                                   , Element.el [width (px 360)] selectedPhoto
---                                   ]
---                          )
-
---?view : Model -> Html Msg
+view : Model -> Element Msg
 view model =
     let
         photoByUrl : String -> Maybe Photo

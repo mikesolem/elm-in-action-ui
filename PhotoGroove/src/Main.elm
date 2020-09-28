@@ -32,15 +32,6 @@ type Route
     | SelectedPhoto String
 
       
--- init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
--- init flags url key =
---     ( { page = urlToPage url, key = key }, Cmd.none )
-
--- init : Float -> Url -> Nav.Key -> ( Model, Cmd Msg )
--- init version url key =
---     ( { page = urlToPage version url, key = key, version = version }
---     , Cmd.none
---     )
 init : Float -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init version url key =
     updateUrl url { page = NotFound, key = key, version = version }
@@ -62,10 +53,6 @@ updateUrl url model =
             ( { model | page = NotFound }, Cmd.none )
 
 
--- urlToPage : Url -> Page
--- urlToPage url =
---     Parser.parse parser url
---         |> Maybe.withDefault NotFound
 urlToPage : Float -> Url -> Page
 urlToPage version url =
     case Parser.parse parser url of
@@ -119,22 +106,17 @@ h1 theText =
 view : Model -> Document Msg
 view model =
     let
-        -- content =  text "This isn't even my final form!"
-        --?you are here: content is returning Html but other things in column return Element        
         content =
             case model.page of
                 FoldersPage folders ->
                     Folders.view folders
-                        --|> Html.map GotFoldersMsg
                         |> Element.map GotFoldersMsg
 
                 GalleryPage gallery ->
                     Gallery.view gallery
-                        --|> Html.map GotGalleryMsg
                         |> Element.map GotGalleryMsg
 
                 NotFound ->
-                    --Html.text "Not Found"
                     text "Not Found"
     in
         { title = "Photo Groove, SPA Style"
@@ -167,7 +149,7 @@ viewHeader page =
                 , navLink Gallery { url = "/gallery", caption = "Gallery" }
                 ]
 
-        --? add type anotation
+        navLink : Route -> { url : String, caption : String } -> Element msg
         navLink route { url, caption } =
             let
                 underline = if isActive { link = route, page = page } then [Font.underline] else []
@@ -227,7 +209,6 @@ update msg model =
                     ( model, Nav.pushUrl model.key (Url.toString url) )
 
         ChangedUrl url ->
-            --( { model | page = urlToPage model.version url }, Cmd.none )
             updateUrl url model
 
         GotFoldersMsg foldersMsg ->
@@ -264,7 +245,6 @@ toGallery model ( folders, cmd ) =
     
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    --Sub.none
     case model.page of
         GalleryPage gallery ->
             Gallery.subscriptions gallery
@@ -274,7 +254,6 @@ subscriptions model =
             Sub.none
 
 
---main : Program () Model Msg
 main : Program Float Model Msg
 main =
     Browser.application
