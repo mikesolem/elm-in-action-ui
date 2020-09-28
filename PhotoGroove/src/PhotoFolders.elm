@@ -161,9 +161,7 @@ view model =
         Element.el [ Background.color <| gray
                        , paddingXY 10 60
                        ] ( row [ width (px 960) ] [ column [ alignTop, width (px 360)  ]
-                                                        [ h1 "Folders"
-                                                        , viewFolder End model.root
-                                                        ]
+                                                        [ viewFolder End model.root ]
                                   , Element.el [width (px 360)] selectedPhoto
                                   ]
                          )

@@ -175,14 +175,6 @@ sizeToInt size =
         Large -> 200
 
 
-h1 theText =
-    el [ Font.size 32
-       , Font.family [ Font.typeface "Verdana" ]
-       , Font.color <| blue
-       , Font.semiBold
-       ] (text theText)
-
-
 view : Model -> Element Msg
 view model =
     el [ Background.color <| rgb255 44 44 44
@@ -216,9 +208,7 @@ viewFilter toMsg name magnitude =
 
 viewLoaded : List Photo -> String -> Model -> List (Element Msg)
 viewLoaded photos selectedUrl model =
-    [ row [width fill] [ h1 "Photo Groove"
-             , el [alignRight] (Element.text model.activity)
-             ]
+    [ row [width fill] [ el [alignRight] (Element.text model.activity) ]
     , row [width fill] [ viewSizeChooser model.chosenSize
                        , column [ padding 30 ] [ viewFilter SlidHue "Hue" model.hue
                                                , viewFilter SlidRipple "Ripple" model.ripple
