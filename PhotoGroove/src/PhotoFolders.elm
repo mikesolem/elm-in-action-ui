@@ -70,11 +70,12 @@ update msg model =
     case msg of
         ClickedFolder path ->
             ( { model | root = toggleExpanded path model.root }, Cmd.none )
+                
         ClickedPhoto url ->
             ( { model | selectedPhotoUrl = Just url }, Cmd.none )
 
         GotInitialModel (Ok newModel) ->
-            ( newModel, Cmd.none )
+            ( { newModel | selectedPhotoUrl = model.selectedPhotoUrl }, Cmd.none )
 
         GotInitialModel (Err _) ->
             ( model, Cmd.none )
@@ -177,16 +178,17 @@ type alias Photo =
 
 viewPhoto : String -> Element Msg
 viewPhoto url =
-    Input.button [ Font.color <| white
-                 , padding 7
-                 , Font.size 18
-                 , paddingXY 20 5
-                 ]
-        { onPress = Just (ClickedPhoto url)
+    link [ onClick (ClickedPhoto url)
+         , Font.color <| white
+         , padding 7
+         , Font.size 18
+         , paddingXY 20 5
+         ]
+        { url = ("/photos/" ++ url)
         , label = text url
         }
 
-    
+        
 viewSelectedPhoto : Photo -> Element Msg
 viewSelectedPhoto photo =
     column [ spacing 2 ]
